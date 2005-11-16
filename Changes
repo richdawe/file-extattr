@@ -3,10 +3,12 @@ utf8
 warnings
 check that partition supports it, especially in unit test
 docs, explain user_xattr, mount -o remount
-handle filehandle as well
+handle filehandle as well - may need to be done in perl rather than xs
 change to use section 2 calls instead of section 3
 for "operation not supported" note must be prefixed with "user"
 buffer size, reuse buffer?
+throw exceptions rather than warnings on getxattr() failure
+symbolic link handling
 
 
 Revision history for Perl extension Linux::xattr.
