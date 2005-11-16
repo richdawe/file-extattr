@@ -1,0 +1,11 @@
+Changes
+Makefile.PL
+MANIFEST
+MANIFEST.SKIP
+ppport.h
+README
+xattr.xs
+t/Linux-xattr.t
+lib/Linux/xattr.pm
+META.yml                                 Module meta-data (added by MakeMaker)
+.cvsignore

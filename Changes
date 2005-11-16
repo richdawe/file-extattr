@@ -1,0 +1,22 @@
+todo:
+utf8
+warnings
+check that partition supports it, especially in unit test
+docs, explain user_xattr, mount -o remount
+handle filehandle as well
+change to use section 2 calls instead of section 3
+for "operation not supported" note must be prefixed with "user"
+buffer size, reuse buffer?
+
+
+Revision history for Perl extension Linux::xattr.
+
+0.02 2005-11-15
+    - (kg) changing to use system functions instead of compatability functions
+    - (kg) fixing strlen stuff in get and set
+    - (kg) exporting constants
+
+0.01  Wed Nov  9 08:57:42 2005
+	- original version; created by h2xs 1.23 with options
+		-O -n Linux::xattr Linux-xattr/mylib/xattrlib.h
+
