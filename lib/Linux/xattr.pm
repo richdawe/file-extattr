@@ -100,15 +100,59 @@ standards.
 
 If you have a mailing list set up for your module, mention it here.
 
-If you have a web site set up for your module, mention it here.
+The latest version of this software should be available from its
+home page: L<http://sourceforge.net/projects/file-extattr/>
+
+L<OS2::ExtAttr> provides access to extended attributes on OS/2.
+
+Eiciel, L<http://rofi.pinchito.com/eiciel/>, is an access control list (ACL)
+editor for GNOME; the ACLs are stored in extended attributes.
+
+Various low-level APIs exist for manipulating extended attributes:
+
+=over 4
+
+=item Linux
+
+L<http://www.die.net/doc/linux/man/man2/getxattr.2.html>
+
+L<http://www.die.net/doc/linux/man/man5/attr.5.html>
+
+=item OpenBSD
+
+L<http://www.openbsd.org/cgi-bin/man.cgi?query=extattr_get_file&apropos=0&sektion=0&manpath=OpenBSD+Current&arch=i386&format=html>
+
+=item FreeBSD
+
+L<http://www.freebsd.org/cgi/man.cgi?query=extattr&sektion=2&apropos=0&manpath=FreeBSD+6.0-RELEASE+and+Ports>
+
+=item NetBSD
+
+L<http://netbsd.gw.com/cgi-bin/man-cgi?extattr_get_file+2+NetBSD-current>
+
+=item Mac OS X
+
+L<http://arstechnica.com/reviews/os/macosx-10.4.ars/7>
+
+=item Solaris
+
+L<http://docsun.cites.uiuc.edu/sun_docs/C/solaris_9/SUNWaman/hman3c/attropen.3c.html>
+
+L<http://docsun.cites.uiuc.edu/sun_docs/C/solaris_9/SUNWaman/hman5/fsattr.5.html>
+
+=back
 
 =head1 AUTHOR
 
 Kevin M. Goess, E<lt>kgoess@ensenda.comE<gt>
 
+Richard Dawe, E<lt>rich@phekda.gotadsl.co.ukE<gt>
+
 =head1 COPYRIGHT AND LICENSE
 
 Copyright (C) 2005 by Kevin M. Goess
+
+Copyright (C) 2005 by Richard Dawe
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.5 or,
