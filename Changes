@@ -9,6 +9,7 @@ for "operation not supported" note must be prefixed with "user"
 buffer size, reuse buffer?
 throw exceptions rather than warnings on getxattr() failure
 symbolic link handling
+Check it can be used with Perl 5.6.x
 
 
 Revision history for Perl extension Linux::xattr.
