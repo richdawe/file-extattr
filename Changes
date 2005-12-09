@@ -12,7 +12,10 @@ symbolic link handling
 Check it can be used with Perl 5.6.x
 
 
-Revision history for Perl extension Linux::xattr.
+Revision history for Perl extension File::ExtAttr.
+
+0.03 2005-12-09
+    - (richdawe) Rename to File::ExtAttr from Linux::xattr
 
 0.02 2005-11-15
     - (kg) changing to use system functions instead of compatability functions

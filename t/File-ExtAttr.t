@@ -7,9 +7,9 @@
 
 use Test::More tests => 6;
 use File::Temp qw(tempfile);
-BEGIN { use_ok('Linux::xattr') };
+BEGIN { use_ok('File::ExtAttr') };
 
-use Linux::xattr qw(setfattr getfattr delfattr);
+use File::ExtAttr qw(setfattr getfattr delfattr);
 
 my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
 my ($fh, $filename) = tempfile( DIR => $TESTDIR );
@@ -20,7 +20,7 @@ my $fail = 0;
 foreach my $constname (qw(
 	XATTR_REPLACE XATTR_CREATE)) {
   next if (eval "my \$a = $constname; 1");
-  if ($@ =~ /^Your vendor has not defined Linux::xattr macro $constname/) {
+  if ($@ =~ /^Your vendor has not defined File::ExtAttr macro $constname/) {
     print "# pass: $@";
   } else {
     print "# fail: $@";
@@ -56,7 +56,7 @@ my $val = "ZZZadlf03948alsdjfaslfjaoweir12l34kealfkjalskdfas90d8fajdlfkj./.,f";
    #check that it's gone
    is (getfattr($filename, "user.$key"), undef);
 
-   #check a really big one, bigger than $Linux::xattr::MAX_INITIAL_VALUELEN
+   #check a really big one, bigger than $File::ExtAttr::MAX_INITIAL_VALUELEN
    #Hmmm, 3991 is the biggest number that doesn't generate "no space left on device"
    #on my /var partition, and 920 is the biggest for my loopback partition.
    #What's up with that?

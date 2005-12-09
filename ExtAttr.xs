@@ -10,11 +10,11 @@
 #include <attr/xattr.h>
 #include <sys/types.h>
 
-#define MAX_INITIAL_VALUELEN_VARNAME "Linux::xattr::MAX_INITIAL_VALUELEN"
+#define MAX_INITIAL_VALUELEN_VARNAME "File::ExtAttr::MAX_INITIAL_VALUELEN"
                                         /* Richard, fixme! */
 
 
-MODULE = Linux::xattr		PACKAGE = Linux::xattr		
+MODULE = File::ExtAttr		PACKAGE = File::ExtAttr		
 
 INCLUDE: const-xs.inc
 
@@ -54,7 +54,7 @@ getfattr(path, attrname)
 
         attrvalue = NULL;
 
-        //try first at our default value $Linux::xattr::MAX_INITIAL_VALUELEN
+        //try first at our default value $File::ExtAttr::MAX_INITIAL_VALUELEN
         New(1, attrvalue, buflen, char);
         attrlen = getxattr(path, attrname, attrvalue, buflen);
         if (attrlen == -1){

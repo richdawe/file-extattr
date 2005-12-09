@@ -4,8 +4,8 @@ MANIFEST
 MANIFEST.SKIP
 ppport.h
 README
-xattr.xs
-t/Linux-xattr.t
-lib/Linux/xattr.pm
+ExtAttr.xs
+t/File-ExtAttr.t
+lib/File/ExtAttr.pm
 META.yml                                 Module meta-data (added by MakeMaker)
 .cvsignore

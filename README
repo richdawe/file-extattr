@@ -1,5 +1,5 @@
-Linux-xattr version 0.01
-========================
+File-ExtAttr version 0.03
+=========================
 
 The README is used to introduce the module and provide instructions on
 how to install the module, any machine dependencies it may have (for
@@ -32,6 +32,8 @@ COPYRIGHT AND LICENCE
 Put the correct copyright and licence information here.
 
 Copyright (C) 2005 by Kevin M. Goess
+
+Copyright (C) 2005 by Richard Dawe
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.5 or,

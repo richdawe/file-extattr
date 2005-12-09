@@ -1,4 +1,4 @@
-package Linux::xattr;
+package File::ExtAttr;
 
 use 5.008005;
 use strict;
@@ -14,7 +14,7 @@ our @ISA = qw(Exporter);
 # names by default without a very good reason. Use EXPORT_OK instead.
 # Do not simply export all your public functions/methods/constants.
 
-# This allows declaration	use Linux::xattr ':all';
+# This allows declaration	use File::ExtAttr ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 our %EXPORT_TAGS = ( 'all' => [ qw( getfattr setfattr delfattr
@@ -25,10 +25,10 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw(
 );
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 #this is used by getxattr(), needs documentation
-$Linux::xattr::MAX_INITIAL_VALUELEN = 255;
+$File::ExtAttr::MAX_INITIAL_VALUELEN = 255;
 
 sub AUTOLOAD {
     # This AUTOLOAD is used to 'autoload' constants from the constant()
@@ -37,7 +37,7 @@ sub AUTOLOAD {
     my $constname;
     our $AUTOLOAD;
     ($constname = $AUTOLOAD) =~ s/.*:://;
-    croak "&Linux::xattr::constant not defined" if $constname eq 'constant';
+    croak "&File::ExtAttr::constant not defined" if $constname eq 'constant';
     my ($error, $val) = constant($constname);
     if ($error) { croak $error; }
     {
@@ -54,7 +54,7 @@ sub AUTOLOAD {
 }
 
 require XSLoader;
-XSLoader::load('Linux::xattr', $VERSION);
+XSLoader::load('File::ExtAttr', $VERSION);
 
 # Preloaded methods go here.
 
@@ -66,16 +66,16 @@ __END__
 
 =head1 NAME
 
-Linux::xattr - Perl extension for blah blah blah
+File::ExtAttr - Perl extension for blah blah blah
 
 =head1 SYNOPSIS
 
-  use Linux::xattr;
+  use File::ExtAttr;
   blah blah blah
 
 =head1 DESCRIPTION
 
-Stub documentation for Linux::xattr, created by h2xs. It looks like the
+Stub documentation for File::ExtAttr, created by h2xs. It looks like the
 author of the extension was negligent enough to leave the stub
 unedited.
 

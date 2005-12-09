@@ -3,12 +3,13 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
-    NAME              => 'Linux::xattr',
-    VERSION_FROM      => 'lib/Linux/xattr.pm', # finds $VERSION
+    NAME              => 'File::ExtAttr',
+    VERSION_FROM      => 'lib/File/ExtAttr.pm', # finds $VERSION
     PREREQ_PM         => {}, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-      (ABSTRACT_FROM  => 'lib/Linux/xattr.pm', # retrieve abstract from module
-       AUTHOR         => 'Kevin M. Goess <kgoess@ensenda.com>') : ()),
+      (ABSTRACT_FROM  => 'lib/File/ExtAttr.pm', # retrieve abstract from module
+       AUTHOR         => 'Kevin M. Goess <kgoess@ensenda.com>'
+                         .', Richard Dawe <rich@phekda.gotadsl.co.uk>') : ()),
     LIBS              => ['-lattr'], # e.g., '-lm'
     DEFINE            => '', # e.g., '-DHAVE_SOMETHING'
     INC               => '-I. -I/usr/include -I/usr/local/lib', # e.g., '-I. -I/usr/include/other'
@@ -23,7 +24,7 @@ if  (eval {require ExtUtils::Constant; 1}) {
   # changes.
   my @names = (qw(XATTR_CREATE XATTR_REPLACE));
   ExtUtils::Constant::WriteConstants(
-                                     NAME         => 'Linux::xattr',
+                                     NAME         => 'File::ExtAttr',
                                      NAMES        => \@names,
                                      DEFAULT_TYPE => 'IV',
                                      C_FILE       => 'const-c.inc',
