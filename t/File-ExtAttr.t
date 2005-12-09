@@ -8,7 +8,7 @@
 # change 'tests => 2' to 'tests => last_test_to_print';
 
 use strict;
-use Test::More tests => 6;
+use Test::More tests => 5;
 use File::Temp qw(tempfile);
 BEGIN { use_ok('File::ExtAttr') };
 
@@ -19,7 +19,7 @@ my ($fh, $filename) = tempfile( DIR => $TESTDIR );
 close $fh || die "can't close $filename $!";
 
 
-print STDERR "using $filename\n";
+print "# using $filename\n";
 
 #todo: try wierd characters in here?
 #     try unicode?

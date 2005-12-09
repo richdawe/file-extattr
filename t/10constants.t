@@ -4,7 +4,7 @@
 
 use strict;
 no strict 'refs';
-use Test::More tests => 3;
+use Test::More tests => 2;
 use File::ExtAttr ':all';
 
 foreach my $constname (qw{XATTR_REPLACE XATTR_CREATE}) {
