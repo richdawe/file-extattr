@@ -28,13 +28,7 @@ setfattr (path, attrname, attrvalueSV, flags)
     CODE:
         STRLEN slen;
         char * attrvalue = SvPV(attrvalueSV, slen);
-        RETVAL = setxattr(path,attrname,attrvalue,slen,flags);
-        //C return convention vs. Perl
-        if (RETVAL != 0){
-            RETVAL = 0;
-        }else{
-            RETVAL = 1;
-        }
+        RETVAL = (setxattr(path,attrname,attrvalue,slen,flags) == 0);
         //we need a hint in here, if they don't use "user." and they're
         //not root, the error message is just "Operation not supported"
         //which is really useless
@@ -95,13 +89,7 @@ delfattr (path, attrname)
          const char *path
          const char *attrname
     CODE:
-        RETVAL = removexattr(path,attrname);
-        //C return convention vs. Perl
-        if (RETVAL != 0){
-            RETVAL = 0;
-        }else{
-            RETVAL = 1;
-        }
+        RETVAL = (removexattr(path,attrname) == 0);
     
     OUTPUT: 
         RETVAL
