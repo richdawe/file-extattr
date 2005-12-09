@@ -16,6 +16,7 @@ Revision history for Perl extension File::ExtAttr.
 
 0.03 2005-12-09
     - (richdawe) Rename to File::ExtAttr from Linux::xattr
+    - (richdawe) Bugfix: XATTR_* were not found correctly in XS.
 
 0.02 2005-11-15
     - (kg) changing to use system functions instead of compatability functions

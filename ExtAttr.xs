@@ -4,11 +4,11 @@
 
 #include "ppport.h"
 
-#include "const-c.inc"
-
 #include <attr/attributes.h>
 #include <attr/xattr.h>
 #include <sys/types.h>
+
+#include "const-c.inc"
 
 #define MAX_INITIAL_VALUELEN_VARNAME "File::ExtAttr::MAX_INITIAL_VALUELEN"
                                         /* Richard, fixme! */
