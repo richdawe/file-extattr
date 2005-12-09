@@ -1,3 +1,5 @@
+#!perl -T
+
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl Linux-xattr.t'
 
@@ -5,6 +7,7 @@
 
 # change 'tests => 2' to 'tests => last_test_to_print';
 
+use strict;
 use Test::More tests => 6;
 use File::Temp qw(tempfile);
 BEGIN { use_ok('File::ExtAttr') };
@@ -15,22 +18,6 @@ my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
 my ($fh, $filename) = tempfile( DIR => $TESTDIR );
 close $fh || die "can't close $filename $!";
 
-
-my $fail = 0;
-foreach my $constname (qw(
-	XATTR_REPLACE XATTR_CREATE)) {
-  next if (eval "my \$a = $constname; 1");
-  if ($@ =~ /^Your vendor has not defined File::ExtAttr macro $constname/) {
-    print "# pass: $@";
-  } else {
-    print "# fail: $@";
-    $fail = 1;
-  }
-
-}
-
-ok( $fail == 0 , 'Constants' );
-#########################
 
 print STDERR "using $filename\n";
 
