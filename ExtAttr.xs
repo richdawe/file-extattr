@@ -58,7 +58,7 @@ getfattr(path, attrname)
                 //ok, look up the real length
                 attrlen = getxattr(path, attrname, attrvalue, 0);
                 Safefree(attrvalue);
-                New(1, attrvalue, attrlen-1, char);
+                New(1, attrvalue, attrlen, char);
                 attrlen = getxattr(path, attrname, attrvalue, attrlen);
             }
         }
