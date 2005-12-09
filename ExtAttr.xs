@@ -18,6 +18,8 @@ MODULE = File::ExtAttr		PACKAGE = File::ExtAttr
 
 INCLUDE: const-xs.inc
 
+PROTOTYPES: ENABLE
+
 
 int 
 setfattr (path, attrname, attrvalueSV, flags)
