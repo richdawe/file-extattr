@@ -8,10 +8,8 @@
 # change 'tests => 2' to 'tests => last_test_to_print';
 
 use strict;
-use Test::More tests => 5;
+use Test::More tests => 4;
 use File::Temp qw(tempfile);
-BEGIN { use_ok('File::ExtAttr') };
-
 use File::ExtAttr qw(setfattr getfattr delfattr);
 
 my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
