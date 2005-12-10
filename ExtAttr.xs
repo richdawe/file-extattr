@@ -29,11 +29,52 @@ setfattr (path, attrname, attrvalueSV, flags)
          int flags
     CODE:
         STRLEN slen;
-        char * attrvalue = SvPV(attrvalueSV, slen);
-        RETVAL = (setxattr(path,attrname,attrvalue,slen,flags) == 0);
-        //we need a hint in here, if they don't use "user." and they're
-        //not root, the error message is just "Operation not supported"
-        //which is really useless
+        char * attrvalue;
+	int rc;
+
+	attrvalue = SvPV(attrvalueSV, slen);
+        rc = setxattr(path,attrname,attrvalue,slen,flags);
+	if (rc == -1)
+	{
+	    int saved_errno = errno;
+	    int is_user_xattr;
+	    char * errstr;
+
+	    is_user_xattr = (strncmp(attrname, "user.", 5) == 0); 
+	    New(1, errstr, 1000, char);
+
+	    // Try to give the user a useful hint of what went wrong.
+	    // Otherwise the error message is just "Operation not supported"
+	    // which is really unhelpful.
+	    if (saved_errno == EOPNOTSUPP)
+	    {
+	        if (!is_user_xattr)
+		{
+		    // XXX: Probably Linux-specific
+		    // XXX: What about other prefixes, e.g.: "security."?
+		    warn("setxattr failed: %s"
+			 " - perhaps the extended attribute's name"
+			 " needs a \"user.\" prefix?",
+			 strerror_r(errno,errstr,1000));
+		}
+		else
+		{
+		    warn("setxattr failed: %s"
+			 " - perhaps the filesystem needs to be mounted"
+			 "with an option to enable extended attributes?",
+			 strerror_r(errno,errstr,1000));
+		}
+	    }
+	    else
+	    {
+	        warn("setxattr failed: %s",
+		     strerror_r(errno,errstr,1000)); 
+	    }
+
+	    Safefree(errstr);
+	    XSRETURN_UNDEF;
+	}
+        RETVAL = (rc == 0);
     OUTPUT: 
         RETVAL
 
@@ -44,7 +85,6 @@ getfattr(path, attrname)
          const char *attrname
    CODE:
         char * attrvalue;
-        char * errstr;
         int attrlen;
         STRLEN buflen = SvIV(get_sv(MAX_INITIAL_VALUELEN_VARNAME, FALSE));
 
@@ -73,8 +113,9 @@ getfattr(path, attrname)
 
             //print warning and return undef
             }else{
+	        char * errstr;
                 New(1, errstr, 1000, char);
-                warn("attr_get failed: %s",strerror_r(errno,errstr,1000)); 
+                warn("getxattr failed: %s",strerror_r(errno,errstr,1000)); 
                 Safefree(errstr);
                 XSRETURN_UNDEF;
             }
