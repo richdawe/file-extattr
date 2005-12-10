@@ -40,15 +40,6 @@ my $val = "ZZZadlf03948alsdjfaslfjaoweir12l34kealfkjalskdfas90d8fajdlfkj./.,f";
 
    #check that it's gone
    is (getfattr($filename, "user.$key"), undef);
-
-   #check a really big one, bigger than $File::ExtAttr::MAX_INITIAL_VALUELEN
-   #Hmmm, 3991 is the biggest number that doesn't generate "no space left on device"
-   #on my /var partition, and 920 is the biggest for my loopback partition.
-   #What's up with that?
-   #setfattr($filename, "user.$key-2", ('x' x 3991), 0) || die "setfattr failed on $filename: $!"; 
-   setfattr($filename, "user.$key-2", ('x' x 920), 0) || die "setfattr failed on $filename: $!"; 
-   getfattr($filename, "user.$key-2");
-
 #}
 #print STDERR "done\n";
 #<STDIN>;
