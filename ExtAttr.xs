@@ -22,7 +22,7 @@ PROTOTYPES: ENABLE
 
 
 int 
-setfattr (path, attrname, attrvalueSV, flags)
+setfattr (path, attrname, attrvalueSV, flags = 0)
          const char *path
          const char *attrname
          SV * attrvalueSV
