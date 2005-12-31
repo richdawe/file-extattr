@@ -9,12 +9,13 @@
 #include <sys/types.h>
 
 #include "const-c.inc"
+#include "helpers.h"
 
 #define MAX_INITIAL_VALUELEN_VARNAME "File::ExtAttr::MAX_INITIAL_VALUELEN"
                                         /* Richard, fixme! */
 
 
-MODULE = File::ExtAttr		PACKAGE = File::ExtAttr		
+MODULE = File::ExtAttr        PACKAGE = File::ExtAttr		
 
 INCLUDE: const-xs.inc
 
@@ -30,50 +31,15 @@ setfattr (path, attrname, attrvalueSV, flags = 0)
     CODE:
         STRLEN slen;
         char * attrvalue;
-	int rc;
+        int rc;
 
-	attrvalue = SvPV(attrvalueSV, slen);
+        attrvalue = SvPV(attrvalueSV, slen);
         rc = setxattr(path,attrname,attrvalue,slen,flags);
-	if (rc == -1)
-	{
-	    int saved_errno = errno;
-	    int is_user_xattr;
-	    char * errstr;
-
-	    is_user_xattr = (strncmp(attrname, "user.", 5) == 0); 
-	    New(1, errstr, 1000, char);
-
-	    // Try to give the user a useful hint of what went wrong.
-	    // Otherwise the error message is just "Operation not supported"
-	    // which is really unhelpful.
-	    if (saved_errno == EOPNOTSUPP)
-	    {
-	        if (!is_user_xattr)
-		{
-		    // XXX: Probably Linux-specific
-		    // XXX: What about other prefixes, e.g.: "security."?
-		    warn("setxattr failed: %s"
-			 " - perhaps the extended attribute's name"
-			 " needs a \"user.\" prefix?",
-			 strerror_r(errno,errstr,1000));
-		}
-		else
-		{
-		    warn("setxattr failed: %s"
-			 " - perhaps the filesystem needs to be mounted"
-			 "with an option to enable extended attributes?",
-			 strerror_r(errno,errstr,1000));
-		}
-	    }
-	    else
-	    {
-	        warn("setxattr failed: %s",
-		     strerror_r(errno,errstr,1000)); 
-	    }
-
-	    Safefree(errstr);
-	    XSRETURN_UNDEF;
-	}
+        if (rc == -1)
+        {
+                setattr_warn("setxattr", attrname, errno);
+                XSRETURN_UNDEF;
+        }
         RETVAL = (rc == 0);
     OUTPUT: 
         RETVAL
@@ -113,7 +79,7 @@ getfattr(path, attrname)
 
             //print warning and return undef
             }else{
-	        char * errstr;
+            char * errstr;
                 New(1, errstr, 1000, char);
                 warn("getxattr failed: %s",strerror_r(errno,errstr,1000)); 
                 Safefree(errstr);

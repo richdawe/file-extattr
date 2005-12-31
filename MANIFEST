@@ -4,6 +4,7 @@ MANIFEST
 MANIFEST.SKIP
 ppport.h
 README
+TODO
 ExtAttr.xs
 t/00load.t
 t/01distribution.t

@@ -11,8 +11,9 @@ WriteMakefile(
        AUTHOR         => 'Kevin M. Goess <kgoess@ensenda.com>'
                          .', Richard Dawe <rich@phekda.gotadsl.co.uk>') : ()),
     LIBS              => ['-lattr'], # e.g., '-lm'
+    OBJECT            => '$(O_FILES)',
     DEFINE            => '', # e.g., '-DHAVE_SOMETHING'
-    INC               => '-I. -I/usr/include -I/usr/local/lib', # e.g., '-I. -I/usr/include/other'
+    INC               => '-I. -I/usr/include', # e.g., '-I. -I/usr/include/other'
 #    'MYEXTLIB' => 'mylib/libxattrlib$(LIB_EXT)',
 	# Un-comment this if you add C files to link with later:
     # OBJECT            => '$(O_FILES)', # link all the C files too
