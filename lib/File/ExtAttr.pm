@@ -4,6 +4,7 @@ use 5.008005;
 use strict;
 use warnings;
 use Carp;
+use Scalar::Util;
 
 require Exporter;
 use AutoLoader;
@@ -57,6 +58,60 @@ require XSLoader;
 XSLoader::load('File::ExtAttr', $VERSION);
 
 # Preloaded methods go here.
+
+sub _is_fh
+{
+    my $file = shift;
+    my $is_fh = 0;
+
+    eval
+    {
+        # TODO: Does this work with Perl 5.005, 5.6.x?
+        # Relies on autovivification of filehandles?
+        $is_fh = 1 if ($file->isa('IO::Handle'));
+
+        # TODO: Does this work with Perl 5.005, 5.6.x?
+        # Better solution for detecting a file handle?
+        $is_fh = 1 if (openhandle($file));
+    };
+
+    return $is_fh;
+}
+
+sub getfattr
+{
+    my $file = shift;
+
+    return _is_fh($file)
+        # File handle
+        ? _fgetfattr($file->fileno(), @_)
+        # Filename
+        : _getfattr($file, @_);
+}
+
+sub setfattr
+{
+    my $file = shift;
+
+    return _is_fh($file)
+        # File handle
+        ? _fsetfattr($file->fileno(), @_)
+        # Filename
+        : _setfattr($file, @_);
+}
+
+sub delfattr
+{
+    my $file = shift;
+
+    return _is_fh($file)
+        # File handle
+        ? _fdelfattr($file->fileno(), @_)
+        # Filename
+        : _delfattr($file, @_);
+}
+
+# TODO: l* functions
 
 # Autoload methods go after =cut, and are processed by the autosplit program.
 
