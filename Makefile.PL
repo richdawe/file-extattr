@@ -10,7 +10,8 @@ WriteMakefile(
       (ABSTRACT_FROM  => 'lib/File/ExtAttr.pm', # retrieve abstract from module
        AUTHOR         => 'Kevin M. Goess <kgoess@ensenda.com>'
                          .', Richard Dawe <rich@phekda.gotadsl.co.uk>') : ()),
-    LIBS              => ['-lattr'], # e.g., '-lm'
+# Don't actually need -lattr on Linux.
+#    LIBS              => ['-lattr'], # e.g., '-lm'
     OBJECT            => '$(O_FILES)',
     DEFINE            => '', # e.g., '-DHAVE_SOMETHING'
     INC               => '-I. -I/usr/include', # e.g., '-I. -I/usr/include/other'
