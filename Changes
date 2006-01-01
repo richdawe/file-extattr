@@ -1,11 +1,12 @@
 Revision history for Perl extension File::ExtAttr.
 
-0.03 2005-12-??
+0.03 2006-01-01
     - (richdawe) Rename to File::ExtAttr from Linux::xattr
     - (richdawe) Bugfix: XATTR_* were not found correctly in XS.
     - (richdawe) Bugfix: Off-by-one buffer overflow in XS for getfattr().
     - (richdawe) Split the tests up, to make them more granular.
     - (richdawe) Final parameter of setfattr() is now optional.
+    - (richdawe) Support specifying file using an IO::Handle.
 
 0.02 2005-11-15
     - (kg) changing to use system functions instead of compatability functions
@@ -15,4 +16,3 @@ Revision history for Perl extension File::ExtAttr.
 0.01  Wed Nov  9 08:57:42 2005
 	- original version; created by h2xs 1.23 with options
 		-O -n Linux::xattr Linux-xattr/mylib/xattrlib.h
-
