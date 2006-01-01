@@ -6,6 +6,8 @@ ppport.h
 README
 TODO
 ExtAttr.xs
+helpers.h
+helpers.c
 t/00load.t
 t/01distribution.t
 t/02load-all.t
