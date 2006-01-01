@@ -1,5 +1,57 @@
 package File::ExtAttr;
 
+=head1 NAME
+
+File::ExtAttr - Perl extension for accessing extended attributes of files
+
+=head1 SYNOPSIS
+
+  use File::ExtAttr ':all';
+  use IO::File;
+  
+  # Manipulate the extended attributes of files.
+  setfattr('foo.txt', 'user.colour', 'red') || die;
+  my $colour = getfattr('bar.txt', 'user.colour');
+  if (defined($colour))
+  {
+      print $colour;
+      delfattr('bar.txt', 'user.colour');
+  }
+  
+  # Manipulate the extended attributes of a file via a file handle.
+  my $fh = new IO::File('<foo.txt') || die;
+  setfattr($fh, 'user.colour', 'red') || die;
+  
+  $fh = new IO::File('<bar.txt') || die;
+  $colour = getfattr($fh, 'user.colour');
+  if (defined($colour))
+  {
+      print $colour;
+      delfattr($fh, 'user.colour');
+  }
+
+=head1 DESCRIPTION
+
+File::ExtAttr is a Perl module providing access to the extended attributes
+of files.
+
+Extended attributes are metadata associated with a file.
+Examples are access control lists (ACLs) and other security parameters.
+But users can add their own key=value pairs.
+
+Extended attributes may not be supported by your operating system.
+This module is aimed at Linux, Unix or Unix-like operating systems
+(e.g.: Mac OS X, FreeBSD, NetBSD, OpenBSD).
+
+Extended attributes may also not be supported by your filesystem
+or require special options to be enabled for a particular filesystem
+(e.g. "mount -o user_xattr /dev/hda1 /some/path").
+
+NOTE: The API is not stable. It may change as part of supporting
+multiple operating systems.
+
+=cut
+
 use 5.008005;
 use strict;
 use warnings;
@@ -59,6 +111,12 @@ XSLoader::load('File::ExtAttr', $VERSION);
 
 # Preloaded methods go here.
 
+=head1 METHODS
+
+=over 4
+
+=cut
+
 sub _is_fh
 {
     my $file = shift;
@@ -78,6 +136,16 @@ sub _is_fh
     return $is_fh;
 }
 
+=item getfattr([$filename | $filehandle], $attrname)
+
+Return the value of the attribute named C<$attrname>
+for the file named C<$filename> or referenced by the open filehandle
+C<$filehandle> (which should be an IO::Handle).
+
+If no attribute is found, returns C<undef>. Otherwise gives a warning.
+
+=cut
+
 sub getfattr
 {
     my $file = shift;
@@ -88,6 +156,24 @@ sub getfattr
         # Filename
         : _getfattr($file, @_);
 }
+
+=item setfattr([$filename | $filehandle], $attrname, $attrval, [$flags])
+
+Set the attribute named C<$attrname> with the value C<$attrval>
+for the file named C<$filename> or referenced by the open filehandle
+C<$filehandle> (which should be an IO::Handle).
+
+C<$flags> allows control of whether the attribute should be created
+or should replace an existing attribute's value. The value
+C<File::ExtAttr::XATTR_CREATE> will cause setfattr to fail
+if the attribute already exists. The value C<File::ExtAttr::XATTR_REPLACE>
+will cause setfattr to fail if the attribute does not already exist.
+If C<$flags> is omitted, then the attribute will be created if necessary
+or silently replaced.
+
+If the attribute could not be set, a warning is given.
+
+=cut
 
 sub setfattr
 {
@@ -100,6 +186,16 @@ sub setfattr
         : _setfattr($file, @_);
 }
 
+=item delfattr([$filename | $filehandle], $attrname)
+
+Delete the attribute named C<$attrname> for the file named C<$filename>
+or referenced by the open filehandle C<$filehandle>
+(which should be an IO::Handle).
+
+Returns true on success, otherwise false and a warning is given.
+
+=cut
+
 sub delfattr
 {
     my $file = shift;
@@ -111,49 +207,24 @@ sub delfattr
         : _delfattr($file, @_);
 }
 
+=back
+
+=cut
+
 # TODO: l* functions
 
-# Autoload methods go after =cut, and are processed by the autosplit program.
-
-1;
-__END__
-# Below is stub documentation for your module. You'd better edit it!
-
-=head1 NAME
-
-File::ExtAttr - Perl extension for blah blah blah
-
-=head1 SYNOPSIS
-
-  use File::ExtAttr;
-  blah blah blah
-
-=head1 DESCRIPTION
-
-Stub documentation for File::ExtAttr, created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
-
-Blah blah blah.
-
-=head2 EXPORT
+=head1 EXPORT
 
 None by default.
 
+You can request that C<getfattr>, C<setfattr> and C<delfattr> be exported
+using the tag ":all".
+
 =head2 Exportable constants
 
-  
-
-
+None
 
 =head1 SEE ALSO
-
-Mention other useful documentation such as the documentation of
-related modules or operating system documentation (such as man pages
-in UNIX), or any relevant external documentation such as RFCs or
-standards.
-
-If you have a mailing list set up for your module, mention it here.
 
 The latest version of this software should be available from its
 home page: L<http://sourceforge.net/projects/file-extattr/>
@@ -207,11 +278,13 @@ Richard Dawe, E<lt>rich@phekda.gotadsl.co.ukE<gt>
 
 Copyright (C) 2005 by Kevin M. Goess
 
-Copyright (C) 2005 by Richard Dawe
+Copyright (C) 2005, 2006 by Richard Dawe
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.5 or,
 at your option, any later version of Perl 5 you may have available.
 
-
 =cut
+
+1;
+__END__

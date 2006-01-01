@@ -1,16 +1,23 @@
 File-ExtAttr version 0.03
 =========================
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
+File::ExtAttr is a Perl module providing access to the extended attributes
+of files.
 
-A README file is required for CPAN modules since CPAN extracts the
-README file from a module distribution so that people browsing the
-archive can use it get an idea of the modules uses. It is usually a
-good idea to provide version information here so that people can
-decide whether fixes for the module are worth downloading.
+Extended attributes are metadata associated with a file.
+Examples are access control lists (ACLs) and other security parameters.
+But users can add their own key=value pairs.
+
+Extended attributes may not be supported by your operating system.
+This module is aimed at Linux, Unix or Unix-like operating systems
+(e.g.: Mac OS X, FreeBSD, NetBSD, OpenBSD).
+
+Extended attributes may also not be supported by your filesystem
+or require special options to be enabled for a particular filesystem
+(e.g. "mount -o user_xattr /dev/hda1 /some/path").
+
+Please see the POD documentation for more detailed information
+("perldoc File::ExtAttr").
 
 INSTALLATION
 
@@ -21,22 +28,21 @@ To install this module type the following:
    make test
    make install
 
+Installation requires a C compiler.
+
 DEPENDENCIES
 
 This module requires these other modules and libraries:
 
-  blah blah blah
+  Carp
+  Scalar::Util
 
 COPYRIGHT AND LICENCE
 
-Put the correct copyright and licence information here.
-
 Copyright (C) 2005 by Kevin M. Goess
 
-Copyright (C) 2005 by Richard Dawe
+Copyright (C) 2005, 2006 by Richard Dawe
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.5 or,
 at your option, any later version of Perl 5 you may have available.
-
-
