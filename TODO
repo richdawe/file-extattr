@@ -12,3 +12,72 @@ Check it can be used with Perl 5.6.x
 Factor out common code from the tests
 Refactor the buffer allocation into a common function in ExtAttr.xs
 Write tests for testing creation/replacement of attributes (and failure cases)
+
+Rename the module?
+~~~~~~~~~~~~~~~~~~
+
+Or could we just mention "metadata" in the one-line summary
+for File::ExtAttr? Then people searching for metadata, extattr, xattr
+would likely find the module. Actually, test whether those terms find
+the module /already/.
+
+My reply to brian d foy's mail:
+
+"brian d foy wrote:
+
+> [[ This message was both posted and mailed: see
+>    the "To," "Cc," and "Newsgroups" headers for details. ]]
+>
+> In article <200601011937.k01JbkCp028345@pause.perl.org>, Perl Authors
+> Upload Server <upload@pause.perl.org> wrote:
+>
+>
+>>  modid:       File::ExtAttr
+>>  DSLIP:       cmcfp
+>>  description: Access extended attributes of files
+>
+>
+>
+> How about File::Attributes::Extended or something like that? The "Ext"
+> abbreviation is vague.
+
+
+What else would go under File::Attributes::*? I couldn't think
+of anything else that would reasonably go in that namespace.
+Is it worth creating a namespace for just this module?
+
+The original motivation for this name was that extended attributes
+are known as "extattrs" (*BSD) or "xattrs" (Linux).
+
+> You might also take a look at File::Spec to see how it handles
+> multi-platform support and names the various bits. :)
+
+Thanks.
+
+We (Kevin Goess and I) discussed having a submodule per platform,
+but we decided to do have all the cross-platform in the XS.
+Haven't /actually/ tried that yet, though. ;)"
+
+Steffan Mueller's mail:
+
+"Richard Dawe wrote:
+>> How about File::Attributes::Extended or something like that? The "Ext"
+>> abbreviation is vague.
+>
+>
+> What else would go under File::Attributes::*? I couldn't think
+> of anything else that would reasonably go in that namespace.
+> Is it worth creating a namespace for just this module?
+>
+> The original motivation for this name was that extended attributes
+> are known as "extattrs" (*BSD) or "xattrs" (Linux).
+
+There is File::Attribute. It does something similar
+but in a completely different way. It creates .filename.attributename files
+to store the attribute data.
+
+I wouldn't use the File::ExtAttr name either since it's too cryptic.
+Personally, I was well aware that different OS's and file systems support
+per-file meta data, but I didn't know what it was called. If I searched CPAN
+for that functionality, I'd look for File::MetaData or File::Atribute(s),
+but I would probably miss File::ExtAddr."
