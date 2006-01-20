@@ -1,5 +1,31 @@
-use 5.008005;
 use ExtUtils::MakeMaker;
+
+# Check whether we have <attr/attributes.h> and <attr/xattr.h> on Linux.
+# Suggest what the user needs to install, to get these files.
+@DIRS = qw(. /usr/include);
+if ($^O eq 'linux')
+{
+    my %headers = (
+        'attr/attributes.h' => 0,
+        'attr/xattr.h' => 0,
+    );
+    my $incdir;
+
+    foreach $incdir (@DIRS)
+    {
+        foreach (keys %headers)
+        {
+            $headers{$_}++ if (-r "$incdir/$_");
+        }
+    }
+
+    foreach (keys %headers)
+    {
+        die "<$_> not found; perhaps you need to install libattr-devel"
+            if ($headers{$_} == 0);
+    }
+}
+
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
@@ -14,7 +40,7 @@ WriteMakefile(
 #    LIBS              => ['-lattr'], # e.g., '-lm'
     OBJECT            => '$(O_FILES)',
     DEFINE            => '', # e.g., '-DHAVE_SOMETHING'
-    INC               => '-I. -I/usr/include', # e.g., '-I. -I/usr/include/other'
+    INC               => join(' ', map { "-I$_" } @DIRS),
 #    'MYEXTLIB' => 'mylib/libxattrlib$(LIB_EXT)',
 	# Un-comment this if you add C files to link with later:
     # OBJECT            => '$(O_FILES)', # link all the C files too

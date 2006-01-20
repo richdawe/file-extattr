@@ -3,13 +3,11 @@
 #include "XSUB.h"
 
 #include "ppport.h"
-
-#include <attr/attributes.h>
-#include <attr/xattr.h>
-#include <sys/types.h>
-
-#include "const-c.inc"
 #include "helpers.h"
+#include "portable.h"
+
+/* NB: Include this after portable.h (or <sys/xattr.h>) */
+#include "const-c.inc"
 
 #define MAX_INITIAL_VALUELEN_VARNAME "File::ExtAttr::MAX_INITIAL_VALUELEN"
                                         /* Richard, fixme! */
@@ -34,7 +32,7 @@ _setfattr (path, attrname, attrvalueSV, flags = 0)
         int rc;
 
         attrvalue = SvPV(attrvalueSV, slen);
-        rc = setxattr(path,attrname,attrvalue,slen,flags);
+        rc = portable_setxattr(path, attrname, attrvalue, slen, flags);
         if (rc == -1)
         {
                 setattr_warn("setxattr", attrname, errno);
@@ -57,7 +55,7 @@ _fsetfattr (fd, attrname, attrvalueSV, flags = 0)
         int rc;
 
         attrvalue = SvPV(attrvalueSV, slen);
-        rc = fsetxattr(fd,attrname,attrvalue,slen,flags);
+        rc = portable_fsetxattr(fd, attrname, attrvalue, slen, flags);
         if (rc == -1)
         {
                 setattr_warn("fsetxattr", attrname, errno);
@@ -81,14 +79,14 @@ _getfattr(path, attrname)
 
         //try first at our default value $File::ExtAttr::MAX_INITIAL_VALUELEN
         New(1, attrvalue, buflen, char);
-        attrlen = getxattr(path, attrname, attrvalue, buflen);
+        attrlen = portable_getxattr(path, attrname, attrvalue, buflen);
         if (attrlen == -1){
             if (errno == ERANGE) {
                 //ok, look up the real length
-                attrlen = getxattr(path, attrname, attrvalue, 0);
+                attrlen = portable_getxattr(path, attrname, attrvalue, 0);
                 Safefree(attrvalue);
                 New(1, attrvalue, attrlen, char);
-                attrlen = getxattr(path, attrname, attrvalue, attrlen);
+                attrlen = portable_getxattr(path, attrname, attrvalue, attrlen);
             }
         }
 
@@ -128,14 +126,14 @@ _fgetfattr(fd, attrname)
 
         //try first at our default value $File::ExtAttr::MAX_INITIAL_VALUELEN
         New(1, attrvalue, buflen, char);
-        attrlen = fgetxattr(fd, attrname, attrvalue, buflen);
+        attrlen = portable_fgetxattr(fd, attrname, attrvalue, buflen);
         if (attrlen == -1){
             if (errno == ERANGE) {
                 //ok, look up the real length
-                attrlen = fgetxattr(fd, attrname, attrvalue, 0);
+                attrlen = portable_fgetxattr(fd, attrname, attrvalue, 0);
                 Safefree(attrvalue);
                 New(1, attrvalue, attrlen, char);
-                attrlen = fgetxattr(fd, attrname, attrvalue, attrlen);
+                attrlen = portable_fgetxattr(fd, attrname, attrvalue, attrlen);
             }
         }
 
@@ -151,7 +149,7 @@ _fgetfattr(fd, attrname)
             }else{
             char * errstr;
                 New(1, errstr, 1000, char);
-                warn("getxattr failed: %s",strerror_r(errno,errstr,1000)); 
+                warn("fgetxattr failed: %s",strerror_r(errno,errstr,1000)); 
                 Safefree(errstr);
                 XSRETURN_UNDEF;
             }
@@ -167,7 +165,7 @@ _delfattr (path, attrname)
          const char *path
          const char *attrname
     CODE:
-        RETVAL = (removexattr(path,attrname) == 0);
+        RETVAL = (portable_removexattr(path, attrname) == 0);
     
     OUTPUT: 
         RETVAL
@@ -178,7 +176,7 @@ _fdelfattr (fd, attrname)
          int fd
          const char *attrname
     CODE:
-        RETVAL = (fremovexattr(fd,attrname) == 0);
+        RETVAL = (portable_fremovexattr(fd, attrname) == 0);
     
     OUTPUT: 
         RETVAL
