@@ -3,6 +3,7 @@ Revision history for Perl extension File::ExtAttr.
 0.04 2006-01-20
     - (richdawe) Add Mac OS X support; thanks to Jonathan Rockway.
     - (richdawe) Add a check to Makefile.PL for libattr's headers on Linux.
+    - (richdawe) Requirement on Perl 5.8.5 is spurious; remove it.
 
 0.03 2006-01-01
     - (richdawe) Rename to File::ExtAttr from Linux::xattr
