@@ -13,6 +13,9 @@ Factor out common code from the tests
 Refactor the buffer allocation into a common function in ExtAttr.xs
 Write tests for testing creation/replacement of attributes (and failure cases)
 
+Remove dependency on libattr on Linux - just define ENOATTR -> ENODATA?
+(Feels a bit evil to do that.)
+
 Rename the module?
 ~~~~~~~~~~~~~~~~~~
 
