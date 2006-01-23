@@ -16,6 +16,9 @@ Write tests for testing creation/replacement of attributes (and failure cases)
 Remove dependency on libattr on Linux - just define ENOATTR -> ENODATA?
 (Feels a bit evil to do that.)
 
+Unite somehow with File::Attributes (which is for file systems
+without xattrs)?
+
 Rename the module?
 ~~~~~~~~~~~~~~~~~~
 
