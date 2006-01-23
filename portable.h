@@ -1,7 +1,7 @@
 #ifndef EXTATTR_PORTABLE_H
 #define EXTATTR_PORTABLE_H
 
-#ifdef __MACOSX__
+#ifdef __APPLE__
 #include <sys/xattr.h>
 #else /* Linux */
 #include <attr/attributes.h>
@@ -16,7 +16,7 @@ portable_setxattr (const char *path,
                    const size_t slen,
                    const int flags)
 {
-#ifdef __MACOSX__
+#ifdef __APPLE__
   return setxattr(path, attrname, attrvalue, slen, 0, flags);
 #else
   return setxattr(path, attrname, attrvalue, slen, flags);
@@ -30,7 +30,7 @@ portable_fsetxattr (const int fd,
                     const size_t slen,
                     const int flags)
 {
-#ifdef __MACOSX__
+#ifdef __APPLE__
   return fsetxattr(fd, attrname, attrvalue, slen, 0, flags);
 #else
   return fsetxattr(fd, attrname, attrvalue, slen, flags);
@@ -43,7 +43,7 @@ portable_getxattr (const char *path,
                    void *attrvalue,
                    const size_t slen)
 {
-#ifdef __MACOSX__
+#ifdef __APPLE__
   return getxattr(path, attrname, attrvalue, slen, 0, 0);
 #else
   return getxattr(path, attrname, attrvalue, slen);
@@ -56,7 +56,7 @@ portable_fgetxattr (const int fd,
                     void *attrvalue,
                     const size_t slen)
 {
-#ifdef __MACOSX__
+#ifdef __APPLE__
   return fgetxattr(fd, attrname, attrvalue, slen, 0, 0);
 #else
   return fgetxattr(fd, attrname, attrvalue, slen);
@@ -66,7 +66,7 @@ portable_fgetxattr (const int fd,
 static inline int
 portable_removexattr (const char *path, const char *name)
 {
-#ifdef __MACOSX__
+#ifdef __APPLE__
   return removexattr(path, name, 0);
 #else
   return removexattr(path, name);
@@ -76,7 +76,7 @@ portable_removexattr (const char *path, const char *name)
 static inline int
 portable_fremovexattr (const int fd, const char *name)
 {
-#ifdef __MACOSX__
+#ifdef __APPLE__
   return fremovexattr(fd, name, 0);
 #else
   return fremovexattr(fd, name);
