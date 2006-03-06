@@ -135,11 +135,13 @@ sub _is_fh
     return $is_fh;
 }
 
-=item getfattr([$filename | $filehandle], $attrname)
+=item getfattr([$filename | $filehandle], $attrname, [$flags])
 
 Return the value of the attribute named C<$attrname>
 for the file named C<$filename> or referenced by the open filehandle
 C<$filehandle> (which should be an IO::Handle).
+
+C<$flags> are currently unused.
 
 If no attribute is found, returns C<undef>. Otherwise gives a warning.
 
@@ -170,7 +172,10 @@ will cause setfattr to fail if the attribute does not already exist.
 If C<$flags> is omitted, then the attribute will be created if necessary
 or silently replaced.
 
-If the attribute could not be set, a warning is given.
+NOTE: C<XATTR_*> are currently Linux-specific. A more portable set of flags
+is on the to-do list.
+
+If the attribute could not be set, a warning is issued.
 
 =cut
 
@@ -185,13 +190,15 @@ sub setfattr
         : _setfattr($file, @_);
 }
 
-=item delfattr([$filename | $filehandle], $attrname)
+=item delfattr([$filename | $filehandle], $attrname, [$flags])
 
 Delete the attribute named C<$attrname> for the file named C<$filename>
 or referenced by the open filehandle C<$filehandle>
 (which should be an IO::Handle).
 
-Returns true on success, otherwise false and a warning is given.
+C<$flags> are currently unused.
+
+Returns true on success, otherwise false and a warning is issued.
 
 =cut
 

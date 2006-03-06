@@ -67,9 +67,10 @@ _fsetfattr (fd, attrname, attrvalueSV, flags = 0)
 
 
 SV *
-_getfattr(path, attrname)
+_getfattr(path, attrname, flags = 0)
         const char *path
         const char *attrname
+        int flags
    CODE:
         char * attrvalue;
         int attrlen;
@@ -105,9 +106,10 @@ _getfattr(path, attrname)
 
 
 SV *
-_fgetfattr(fd, attrname)
+_fgetfattr(fd, attrname, flags = 0)
         int fd
         const char *attrname
+        int flags
    CODE:
         char * attrvalue;
         int attrlen;
@@ -143,9 +145,10 @@ _fgetfattr(fd, attrname)
 
 
 int 
-_delfattr (path, attrname)
-         const char *path
-         const char *attrname
+_delfattr (path, attrname, flags = 0)
+        const char *path
+        const char *attrname
+        int flags
     CODE:
         RETVAL = (portable_removexattr(path, attrname) == 0);
     
@@ -154,9 +157,10 @@ _delfattr (path, attrname)
 
 
 int 
-_fdelfattr (fd, attrname)
-         int fd
-         const char *attrname
+_fdelfattr (fd, attrname, flags = 0)
+        int fd
+        const char *attrname
+        int flags
     CODE:
         RETVAL = (portable_fremovexattr(fd, attrname) == 0);
     

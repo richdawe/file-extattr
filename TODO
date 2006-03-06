@@ -23,6 +23,9 @@ Get it to build on NetBSD 3.0 - it doesn't have strerror_r, which we need.
 NetBSD 4.0 is the first NetBSD to support extattrs on disk, so maybe
 there's no point supporting 3.0?
 
+File::ExtAttr::XATTR_REPLACE/XATTR_CREATE is non-portable; find some
+non-racy of doing this on *BSD & Solaris.
+
 Rename the module?
 ~~~~~~~~~~~~~~~~~~
 
