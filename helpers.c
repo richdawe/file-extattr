@@ -36,7 +36,7 @@ setattr_warn (const char *funcname, const char *attrname, const int the_errno)
         {
           warn("%s failed: %s"
                " - perhaps the filesystem needs to be mounted"
-               "with an option to enable extended attributes?",
+               " with an option to enable extended attributes?",
                funcname,
                strerror_r(the_errno,errstr,1000));
         }
