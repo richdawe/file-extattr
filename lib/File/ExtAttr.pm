@@ -264,6 +264,8 @@ L<http://netbsd.gw.com/cgi-bin/man-cgi?extattr_get_file+2+NetBSD-current>
 
 =item Mac OS X
 
+L<http://developer.apple.com/documentation/Darwin/Reference/ManPages/man2/getxattr.2.html>
+
 L<http://arstechnica.com/reviews/os/macosx-10.4.ars/7>
 
 =item Solaris
