@@ -73,25 +73,16 @@ _getfattr(path, attrname)
    CODE:
         char * attrvalue;
         int attrlen;
-        STRLEN buflen = SvIV(get_sv(MAX_INITIAL_VALUELEN_VARNAME, FALSE));
+        ssize_t buflen;
+
+        buflen = portable_lenxattr(path, attrname);
+        if (buflen <= 0)
+	  buflen = SvIV(get_sv(MAX_INITIAL_VALUELEN_VARNAME, FALSE));
 
         attrvalue = NULL;
-
-        //try first at our default value $File::ExtAttr::MAX_INITIAL_VALUELEN
         New(1, attrvalue, buflen, char);
+
         attrlen = portable_getxattr(path, attrname, attrvalue, buflen);
-        if (attrlen == -1){
-            if (errno == ERANGE) {
-                //ok, look up the real length
-                attrlen = portable_getxattr(path, attrname, attrvalue, 0);
-                Safefree(attrvalue);
-                New(1, attrvalue, attrlen, char);
-                attrlen = portable_getxattr(path, attrname, attrvalue, attrlen);
-            }
-        }
-
-
-        //uh-oh, getxattr failed
         if (attrlen == -1){
 
             //key not found, just return undef
@@ -120,25 +111,16 @@ _fgetfattr(fd, attrname)
    CODE:
         char * attrvalue;
         int attrlen;
-        STRLEN buflen = SvIV(get_sv(MAX_INITIAL_VALUELEN_VARNAME, FALSE));
+        ssize_t buflen;
+
+        buflen = portable_flenxattr(fd, attrname);
+        if (buflen <= 0)
+	  buflen = SvIV(get_sv(MAX_INITIAL_VALUELEN_VARNAME, FALSE));
 
         attrvalue = NULL;
-
-        //try first at our default value $File::ExtAttr::MAX_INITIAL_VALUELEN
         New(1, attrvalue, buflen, char);
+
         attrlen = portable_fgetxattr(fd, attrname, attrvalue, buflen);
-        if (attrlen == -1){
-            if (errno == ERANGE) {
-                //ok, look up the real length
-                attrlen = portable_fgetxattr(fd, attrname, attrvalue, 0);
-                Safefree(attrvalue);
-                New(1, attrvalue, attrlen, char);
-                attrlen = portable_fgetxattr(fd, attrname, attrvalue, attrlen);
-            }
-        }
-
-
-        //uh-oh, getxattr failed
         if (attrlen == -1){
 
             //key not found, just return undef

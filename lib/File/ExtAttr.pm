@@ -77,7 +77,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw(
 );
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 #this is used by getxattr(), needs documentation
 $File::ExtAttr::MAX_INITIAL_VALUELEN = 255;
@@ -245,13 +245,20 @@ L<http://www.die.net/doc/linux/man/man5/attr.5.html>
 
 =item OpenBSD
 
+OpenBSD > 3.8 supports extended attributes.
+
 L<http://www.openbsd.org/cgi-bin/man.cgi?query=extattr_get_file&apropos=0&sektion=0&manpath=OpenBSD+Current&arch=i386&format=html>
 
 =item FreeBSD
 
+FreeBSD >= 5.0 supports extended attributes.
+
 L<http://www.freebsd.org/cgi/man.cgi?query=extattr&sektion=2&apropos=0&manpath=FreeBSD+6.0-RELEASE+and+Ports>
 
 =item NetBSD
+
+NetBSD >= 3.0 supports extended attributes, but you'll need to use
+NetBSD >= 4.0 to have a filesystem that supports them.
 
 L<http://netbsd.gw.com/cgi-bin/man-cgi?extattr_get_file+2+NetBSD-current>
 

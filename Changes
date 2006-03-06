@@ -1,5 +1,9 @@
 Revision history for Perl extension File::ExtAttr.
 
+0.05 2006-03-05
+    - (richdawe) Add support for FreeBSD 6.0. This may also work
+                 with NetBSD >= 4.0 and OpenBSD > 3.8.
+
 0.04 2006-01-20
     - (richdawe) Add Mac OS X support; thanks to Jonathan Rockway.
     - (richdawe) Add a check to Makefile.PL for libattr's headers on Linux.

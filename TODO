@@ -19,6 +19,10 @@ Remove dependency on libattr on Linux - just define ENOATTR -> ENODATA?
 Unite somehow with File::Attributes (which is for file systems
 without xattrs)?
 
+Get it to build on NetBSD 3.0 - it doesn't have strerror_r, which we need.
+NetBSD 4.0 is the first NetBSD to support extattrs on disk, so maybe
+there's no point supporting 3.0?
+
 Rename the module?
 ~~~~~~~~~~~~~~~~~~
 
