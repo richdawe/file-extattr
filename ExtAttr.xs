@@ -168,9 +168,10 @@ _fdelfattr (fd, attrname, flags = 0)
         RETVAL
 
 void
-_listfattr (path, fd)
-         const char *path
-         int fd
+_listfattr (path, fd, flags = 0)
+        const char *path
+        int fd
+        int flags
     INIT:
         ssize_t size, ret;
         char *namebuf = NULL;

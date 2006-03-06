@@ -213,10 +213,12 @@ sub delfattr
         : _delfattr($file, @_);
 }
 
-=item listfattr([$filename | $filehandle])
+=item listfattr([$filename | $filehandle], [$flags])
 
 Return the attributes on the file named C<$filename> or referenced by the open
 filehandle C<$filehandle> (which should be an IO::Handle).
+
+C<$flags> are currently unused.
 
 Returns undef on failure and $! will be set.
 
