@@ -1,5 +1,4 @@
 .cvsignore
-META.yml
 Makefile
 blib
 const-c.inc
