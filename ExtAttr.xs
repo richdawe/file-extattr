@@ -166,3 +166,63 @@ _fdelfattr (fd, attrname, flags = 0)
     
     OUTPUT: 
         RETVAL
+
+void
+_listfattr (path, fd)
+         const char *path
+         int fd
+    INIT:
+        ssize_t size, ret;
+        char *namebuf = NULL;
+        char *nameptr;
+    PPCODE:
+        if(fd == -1)
+            size = portable_listxattr(path, NULL, 0);
+        else
+            size = portable_flistxattr(fd, NULL, 0);
+
+        if (size == -1)
+        {
+            XSRETURN_UNDEF;
+        } else if (size == 0)
+        {
+            XSRETURN_EMPTY;
+        }
+
+        namebuf = malloc(size);
+
+        if (fd == -1)
+            ret = portable_listxattr(path, namebuf, size);
+        else
+            ret = portable_flistxattr(fd, namebuf, size);
+
+        // There could be a race condition here, if someone adds a new
+        // attribute between the two listxattr calls. However it just means we
+        // might return ERANGE.
+
+        if (ret == -1)
+        {
+            free(namebuf);
+            XSRETURN_UNDEF;
+        } else if (ret == 0)
+        {
+            free(namebuf);
+            XSRETURN_EMPTY;
+        }
+
+        nameptr = namebuf;
+
+        while(nameptr < namebuf + ret)
+        {
+          char *endptr = nameptr;
+          while(*endptr++ != '\0');
+
+          // endptr will now point one past the end..
+
+          XPUSHs(sv_2mortal(newSVpvn(nameptr, endptr - nameptr - 1)));
+
+          // nameptr could now point past the end of namebuf
+          nameptr = endptr;
+        }
+
+        free(namebuf);

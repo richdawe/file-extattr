@@ -18,5 +18,6 @@ t/12nonuser.t
 t/13long.t
 t/14optional.t
 lib/File/ExtAttr.pm
+lib/File/ExtAttr/Tie.pm
 META.yml                                 Module meta-data (added by MakeMaker)
 .cvsignore

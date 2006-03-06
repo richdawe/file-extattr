@@ -154,4 +154,24 @@ portable_fremovexattr (const int fd, const char *name)
 #endif
 }
 
+static inline int
+portable_listxattr(const char *path, char *buf, const size_t slen)
+{
+#ifdef __APPLE__
+  return listxattr(path, buf, slen, 0);
+#else
+  return listxattr(path, buf, slen);
+#endif
+}
+
+static inline int
+portable_flistxattr(const int fd, char *buf, const size_t slen)
+{
+#ifdef __APPLE__
+  return flistxattr(fd, buf, slen, 0);
+#else
+  return flistxattr(fd, buf, slen);
+#endif
+}
+
 #endif /* EXTATTR_PORTABLE_H */
