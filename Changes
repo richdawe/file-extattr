@@ -1,6 +1,6 @@
 Revision history for Perl extension File::ExtAttr.
 
-0.05 2006-03-06
+0.05 2006-05-27
     - (richdawe) Add support for FreeBSD 6.0. This may also work
                  with NetBSD >= 4.0 and OpenBSD > 3.8.
     - (richdawe) All *fattr functions now take some optional flags.
