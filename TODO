@@ -26,6 +26,10 @@ there's no point supporting 3.0?
 File::ExtAttr::XATTR_REPLACE/XATTR_CREATE is non-portable; find some
 non-racy of doing this on *BSD & Solaris.
 
+"user." prefix vs. other platforms. This needs sorting out, perhaps
+as an optional parameter on each *xattr function? Defaults to "user."
+on Linux, nothing on the other platforms.
+
 Rename the module?
 ~~~~~~~~~~~~~~~~~~
 
