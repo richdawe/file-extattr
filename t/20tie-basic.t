@@ -4,6 +4,7 @@ use strict;
 use Test::More tests => 5;
 use File::Temp qw(tempfile);
 use File::ExtAttr::Tie;
+use File::ExtAttr qw(getfattr);
 
 my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
 my ($fh, $filename) = tempfile( DIR => $TESTDIR );
@@ -20,21 +21,21 @@ tie %extattr, 'File::ExtAttr::Tie', $filename; # ok()?
 ok(scalar(@ks) == 0);
 
 # Check that creation works.
-my $k = 'foo';
+my $k = 'user.foo';
 my $v = '123';
 
 $extattr{$k} = $v;
-is(getfattr($filename, "user.$k"), $v);
+is(getfattr($filename, "$k"), $v);
 
 # Check that updating works.
 $extattr{$k} = "$v$v";
-is(getfattr($filename, "user.$k"), "$v$v");
+is(getfattr($filename, "$k"), "$v$v");
 
 $extattr{$k} = $v;
-is(getfattr($filename, "user.$k"), $v);
+is(getfattr($filename, "$k"), $v);
 
 # Check that deletion works.
 delete $extattr{$k};
-is(getfattr($filename, "user.$k"), undef);
+is(getfattr($filename, "$k"), undef);
 
 END {unlink $filename if $filename};
