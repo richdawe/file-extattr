@@ -10,6 +10,7 @@ portable.h
 helpers.h
 helpers.c
 extattr_bsd.h
+extattr_bsd.c
 extattr_linux.h
 extattr_macosx.h
 extattr_os.h
