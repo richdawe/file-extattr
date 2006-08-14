@@ -9,6 +9,12 @@ ExtAttr.xs
 portable.h
 helpers.h
 helpers.c
+extattr_bsd.h
+extattr_linux.h
+extattr_macosx.h
+extattr_os.h
+extattr_solaris.c
+extattr_solaris.h
 t/00load.t
 t/01distribution.t
 t/02load-all.t

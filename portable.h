@@ -1,43 +1,10 @@
 #ifndef EXTATTR_PORTABLE_H
 #define EXTATTR_PORTABLE_H
 
-#include <sys/types.h>
-#ifdef __APPLE__
-#include <sys/xattr.h>
-#elif defined(BSD) /* FreeBSD, NetBSD, OpenBSD */
-#include <sys/extattr.h>
-#include <sys/uio.h>
-#else /* Linux */
-#include <attr/attributes.h>
-#include <attr/xattr.h>
-#endif
+/* OS detection */
+#include "extattr_os.h"
 
-#ifdef BSD
-
-/* Helper to convert number of bytes written into success/failure code. */
-static inline int
-bsd_extattr_set_succeeded (const int expected, const int actual)
-{
-  int ret = -1;
-
-  if (actual != -1)
-  {
-    if (actual != expected)
-    {
-      errno = ENOBUFS; /* Pretend there's not enough space for the data. */
-      ret = -1;
-    }
-    else
-    { 
-      ret = 0;
-    }
-  }
-
-  return ret;
-}
-
-#endif /* BSD */
-
+/* Portable extattr functions */
 static inline int
 portable_setxattr (const char *path,
                    const char *attrname,
@@ -45,12 +12,12 @@ portable_setxattr (const char *path,
                    const size_t slen,
                    const int flags)
 {
-#ifdef __APPLE__
+#ifdef EXTATTR_MACOSX
   return setxattr(path, attrname, attrvalue, slen, 0, flags);
-#elif defined(BSD)
-  /* XXX: Namespace? */
-  int ret = extattr_set_file(path, EXTATTR_NAMESPACE_USER, attrname, attrvalue, slen);
-  return bsd_extattr_set_succeeded(slen, ret);
+#elif defined(EXTATTR_BSD)
+  return bsd_setxattr(path, attrname, attrvalue, slen);
+#elif defined(EXTATTR_SOLARIS)
+  return solaris_setxattr(path, attrname, attrvalue, slen, flags);
 #else
   return setxattr(path, attrname, attrvalue, slen, flags);
 #endif
@@ -63,12 +30,12 @@ portable_fsetxattr (const int fd,
                     const size_t slen,
                     const int flags)
 {
-#ifdef __APPLE__
+#ifdef EXTATTR_MACOSX
   return fsetxattr(fd, attrname, attrvalue, slen, 0, flags);
-#elif defined(BSD)
-  /* XXX: Namespace? */
-  int ret = extattr_set_fd(fd, EXTATTR_NAMESPACE_USER, attrname, attrvalue, slen);
-  return bsd_extattr_set_succeeded(slen, ret);
+#elif defined(EXTATTR_BSD)
+  return bsd_fsetxattr(fd, attrname, attrvalue, slen);
+#elif defined(EXTATTR_SOLARIS)
+  return solaris_fsetxattr(fd, attrname, attrvalue, slen, flags);
 #else
   return fsetxattr(fd, attrname, attrvalue, slen, flags);
 #endif
@@ -80,11 +47,13 @@ portable_getxattr (const char *path,
                    void *attrvalue,
                    const size_t slen)
 {
-#ifdef __APPLE__
+#ifdef EXTATTR_MACOSX
   return getxattr(path, attrname, attrvalue, slen, 0, 0);
-#elif defined(BSD)
+#elif defined(EXTATTR_BSD)
   /* XXX: Namespace? */
   return extattr_get_file(path, EXTATTR_NAMESPACE_USER, attrname, attrvalue, slen);
+#elif defined(EXTATTR_SOLARIS)
+  return solaris_getxattr(path, attrname, attrvalue, slen);
 #else
   return getxattr(path, attrname, attrvalue, slen);
 #endif
@@ -96,11 +65,13 @@ portable_fgetxattr (const int fd,
                     void *attrvalue,
                     const size_t slen)
 {
-#ifdef __APPLE__
+#ifdef EXTATTR_MACOSX
   return fgetxattr(fd, attrname, attrvalue, slen, 0, 0);
-#elif defined(BSD)
+#elif defined(EXTATTR_BSD)
   /* XXX: Namespace? */
   return extattr_get_fd(fd, EXTATTR_NAMESPACE_USER, attrname, attrvalue, slen);
+#elif defined(EXTATTR_SOLARIS)
+  return solaris_fgetxattr(fd, attrname, attrvalue, slen);
 #else
   return fgetxattr(fd, attrname, attrvalue, slen);
 #endif
@@ -113,6 +84,7 @@ portable_lenxattr (const char *path, const char *attrname)
   /* XXX: Namespace? */
   return extattr_get_file(path, EXTATTR_NAMESPACE_USER, attrname, NULL, 0);
 #else
+  /* XXX: Can BSD use this too? Maybe once namespacing sorted. */
   return portable_getxattr(path, attrname, NULL, 0);
 #endif
 }
@@ -124,6 +96,7 @@ portable_flenxattr (int fd, const char *attrname)
   /* XXX: Namespace? */
   return extattr_get_fd(fd, EXTATTR_NAMESPACE_USER, attrname, NULL, 0);
 #else
+  /* XXX: Can BSD use this too? Maybe once namespacing sorted. */
   return portable_fgetxattr(fd, attrname, NULL, 0);
 #endif
 }
@@ -131,11 +104,13 @@ portable_flenxattr (int fd, const char *attrname)
 static inline int
 portable_removexattr (const char *path, const char *name)
 {
-#ifdef __APPLE__
+#ifdef EXTATTR_MACOSX
   return removexattr(path, name, 0);
-#elif defined(BSD)
+#elif defined(EXTATTR_BSD)
   /* XXX: Namespace? */
   return extattr_delete_file(path, EXTATTR_NAMESPACE_USER, name);
+#elif defined(EXTATTR_SOLARIS)
+  return solaris_removexattr(path, name);
 #else
   return removexattr(path, name);
 #endif
@@ -144,11 +119,13 @@ portable_removexattr (const char *path, const char *name)
 static inline int
 portable_fremovexattr (const int fd, const char *name)
 {
-#ifdef __APPLE__
+#ifdef EXTATTR_MACOSX
   return fremovexattr(fd, name, 0);
-#elif defined(BSD)
+#elif defined(EXTATTR_BSD)
   /* XXX: Namespace? */
   return extattr_delete_fd(fd, EXTATTR_NAMESPACE_USER, name);
+#elif defined(EXTATTR_SOLARIS)
+  return solaris_fremovexattr(fd, name);
 #else
   return fremovexattr(fd, name);
 #endif
@@ -157,8 +134,12 @@ portable_fremovexattr (const int fd, const char *name)
 static inline int
 portable_listxattr(const char *path, char *buf, const size_t slen)
 {
-#ifdef __APPLE__
+#ifdef EXTATTR_MACOSX
   return listxattr(path, buf, slen, 0);
+#elif defined(EXTATTR_BSD)
+  #error "FIXME"
+#elif defined(EXTATTR_SOLARIS)
+  /*#error "XXX: FIXME"*/
 #else
   return listxattr(path, buf, slen);
 #endif
@@ -167,8 +148,12 @@ portable_listxattr(const char *path, char *buf, const size_t slen)
 static inline int
 portable_flistxattr(const int fd, char *buf, const size_t slen)
 {
-#ifdef __APPLE__
+#ifdef EXTATTR_MACOSX
   return flistxattr(fd, buf, slen, 0);
+#elif defined(EXTATTR_BSD)
+  #error "FIXME"
+#elif defined(EXTATTR_SOLARIS)
+  /*#error "XXX: FIXME" */
 #else
   return flistxattr(fd, buf, slen);
 #endif
