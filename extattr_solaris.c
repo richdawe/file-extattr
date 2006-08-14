@@ -3,11 +3,14 @@
 #ifdef EXTATTR_SOLARIS
 
 #include <errno.h>
+#include <string.h>
 #include <unistd.h>
+#include <dirent.h>
+#include <sys/types.h>
 
 static const mode_t ATTRMODE = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP;
 
-static inline int
+static int
 writexattr (const int attrfd,
 	    const char *attrvalue,
 	    const size_t slen)
@@ -22,7 +25,7 @@ writexattr (const int attrfd,
   return ok ? 0 : -1;
 }
 
-static inline int
+static int
 readclose (const int attrfd,
 	   void *attrvalue,
 	   const size_t slen)
@@ -65,7 +68,7 @@ readclose (const int attrfd,
   return ok ? sz : -1;
 }
 
-static inline int
+static int
 unlinkclose (const int attrdirfd, const char *attrname)
 {
   int sz = 0;
@@ -86,6 +89,67 @@ unlinkclose (const int attrdirfd, const char *attrname)
     errno = saved_errno;
 
   return ok ? sz : -1;  
+}
+
+static ssize_t
+listclose (const int attrdirfd, char *buf, const size_t buflen)
+{
+  int saved_errno = 0;
+  int ok = 1;
+  ssize_t len = 0;
+  DIR *dirp;
+
+  if (attrdirfd == -1)
+    ok = 0;
+
+  if (ok)
+    dirp = fdopendir(attrdirfd);
+
+  if (ok)
+  {
+    struct dirent *de;
+
+    while ((de = readdir(dirp)))
+    {
+      const size_t namelen = strlen(de->d_name);
+
+      /* Ignore "." and ".." entries */
+      if (!strcmp(de->d_name, ".") || !strcmp(de->d_name, ".."))
+	continue;
+
+      if (buflen)
+      {
+	/* Check for space, then copy directory name + nul into list. */
+	if ((len + namelen + 1) > buflen)
+	{
+	  errno = ERANGE;
+	  ok = 0;
+	  break;
+	}
+	else
+	{
+	  strcpy(buf + len, de->d_name);
+	  len += namelen;
+	  buf[len] = '\0';
+	  ++len;
+	}
+      }
+      else
+      {
+	/* Seeing how much space is needed? */
+	len += namelen + 1;
+      }
+    }
+  }
+
+  if (!ok)
+    saved_errno = errno;
+  if ((attrdirfd >= 0) && (close(attrdirfd) == -1) && !saved_errno)
+    saved_errno = errno;
+  if (saved_errno)
+    errno = saved_errno;
+
+  return ok ? len : -1;
 }
 
 int
@@ -175,6 +239,20 @@ solaris_fremovexattr (const int fd, const char *attrname)
 {
   int attrdirfd = openat(fd, ".", O_RDONLY|O_XATTR);
   return unlinkclose(attrdirfd, attrname);
+}
+
+ssize_t
+solaris_listxattr (const char *path, char *buf, const size_t buflen)
+{
+  int attrdirfd = attropen(path, ".", O_RDONLY);
+  return listclose(attrdirfd, buf, buflen);
+}
+
+ssize_t
+solaris_flistxattr (const int fd, char *buf, const size_t buflen)
+{
+  int attrdirfd = openat(fd, ".", O_RDONLY|O_XATTR);
+  return listclose(attrdirfd, buf, buflen);
 }
 
 #endif /* EXTATTR_SOLARIS */

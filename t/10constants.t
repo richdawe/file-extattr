@@ -8,8 +8,11 @@ use Test::More tests => 2;
 use File::ExtAttr ':all';
 
 SKIP: {
-  skip('Create/replace Options not supported on this platform', 2)
+  skip('Create/replace options not supported on this platform', 2)
     if ($^O =~ /bsd$/i);
+
+  skip('FIXME: Create/replace options not yet implemented on this platform', 2)
+    if ($^O =~ /^solaris$/i);
 
   foreach my $constname (qw{XATTR_REPLACE XATTR_CREATE}) {
     eval {

@@ -39,4 +39,12 @@ int solaris_removexattr (const char *path, const char *attrname);
 
 int solaris_fremovexattr (const int fd, const char *attrname);
 
+ssize_t solaris_listxattr (const char *path,
+			   char *buf,
+			   const size_t buflen);
+
+ssize_t solaris_flistxattr (const int fd,
+			    char *buf,
+			    const size_t buflen);
+
 #endif /* EXTATTR_SOLARIS_H */

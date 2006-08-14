@@ -139,7 +139,7 @@ portable_listxattr(const char *path, char *buf, const size_t slen)
 #elif defined(EXTATTR_BSD)
   #error "FIXME"
 #elif defined(EXTATTR_SOLARIS)
-  /*#error "XXX: FIXME"*/
+  return solaris_listxattr(path, buf, slen);
 #else
   return listxattr(path, buf, slen);
 #endif
@@ -153,7 +153,7 @@ portable_flistxattr(const int fd, char *buf, const size_t slen)
 #elif defined(EXTATTR_BSD)
   #error "FIXME"
 #elif defined(EXTATTR_SOLARIS)
-  /*#error "XXX: FIXME" */
+  return solaris_flistxattr(fd, buf, slen);
 #else
   return flistxattr(fd, buf, slen);
 #endif
