@@ -32,10 +32,18 @@ Installation requires a C compiler.
 
 DEPENDENCIES
 
-This module requires these other modules and libraries:
+This module requires these other modules:
 
   Carp
   Scalar::Util
+
+This module's test suite is enhanced by the presence of the following
+modules:
+
+  Test::Distribution
+  Test::Pod
+  File::Find::Rule
+  Module::CoreList
 
 COPYRIGHT AND LICENCE
 

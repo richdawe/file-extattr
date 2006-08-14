@@ -30,6 +30,9 @@ non-racy of doing this on *BSD & Solaris.
 as an optional parameter on each *xattr function? Defaults to "user."
 on Linux, nothing on the other platforms.
 
+Document pre-reqs for test suite: Test::Distribution, Test::Pod::Coverage
+Include these in a .spec file that we can include with distro
+
 Rename the module?
 ~~~~~~~~~~~~~~~~~~
 
