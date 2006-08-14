@@ -26,11 +26,12 @@ _setfattr (path, attrname, attrvalueSV, flags = 0)
          const char *attrname
          SV * attrvalueSV
          int flags
-    CODE:
+    PREINIT:
         STRLEN slen;
         char * attrvalue;
         int rc;
 
+    CODE:
         attrvalue = SvPV(attrvalueSV, slen);
         rc = portable_setxattr(path, attrname, attrvalue, slen, flags);
         if (rc == -1)
@@ -39,6 +40,7 @@ _setfattr (path, attrname, attrvalueSV, flags = 0)
                 XSRETURN_UNDEF;
         }
         RETVAL = (rc == 0);
+
     OUTPUT: 
         RETVAL
 
@@ -49,11 +51,12 @@ _fsetfattr (fd, attrname, attrvalueSV, flags = 0)
          const char *attrname
          SV * attrvalueSV
          int flags
-    CODE:
+    PREINIT:
         STRLEN slen;
         char * attrvalue;
         int rc;
 
+    CODE:
         attrvalue = SvPV(attrvalueSV, slen);
         rc = portable_fsetxattr(fd, attrname, attrvalue, slen, flags);
         if (rc == -1)
@@ -62,6 +65,7 @@ _fsetfattr (fd, attrname, attrvalueSV, flags = 0)
                 XSRETURN_UNDEF;
         }
         RETVAL = (rc == 0);
+
     OUTPUT: 
         RETVAL
 
@@ -71,11 +75,12 @@ _getfattr(path, attrname, flags = 0)
         const char *path
         const char *attrname
         int flags
-   CODE:
+   PREINIT:
         char * attrvalue;
         int attrlen;
         ssize_t buflen;
 
+   CODE:
         buflen = portable_lenxattr(path, attrname);
         if (buflen <= 0)
 	  buflen = SvIV(get_sv(MAX_INITIAL_VALUELEN_VARNAME, FALSE));
@@ -101,6 +106,7 @@ _getfattr(path, attrname, flags = 0)
         }
         RETVAL = newSVpv(attrvalue, attrlen);
         Safefree(attrvalue);
+
     OUTPUT:
         RETVAL
 
@@ -110,11 +116,12 @@ _fgetfattr(fd, attrname, flags = 0)
         int fd
         const char *attrname
         int flags
-   CODE:
+   PREINIT:
         char * attrvalue;
         int attrlen;
         ssize_t buflen;
 
+   CODE:
         buflen = portable_flenxattr(fd, attrname);
         if (buflen <= 0)
 	  buflen = SvIV(get_sv(MAX_INITIAL_VALUELEN_VARNAME, FALSE));
@@ -140,6 +147,7 @@ _fgetfattr(fd, attrname, flags = 0)
         }
         RETVAL = newSVpv(attrvalue, attrlen);
         Safefree(attrvalue);
+
     OUTPUT:
         RETVAL
 
@@ -172,10 +180,11 @@ _listfattr (path, fd, flags = 0)
         const char *path
         int fd
         int flags
-    INIT:
+    PREINIT:
         ssize_t size, ret;
         char *namebuf = NULL;
         char *nameptr;
+
     PPCODE:
         if(fd == -1)
             size = portable_listxattr(path, NULL, 0);
