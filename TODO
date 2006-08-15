@@ -33,6 +33,10 @@ on Linux, nothing on the other platforms.
 Document pre-reqs for test suite: Test::Distribution, Test::Pod::Coverage
 Include these in a .spec file that we can include with distro
 
+Disallow nuls in the attribute names. The list handling will break
+if we allow this. (Alternative is to make the portable listxattr follow
+the BSD API, where the separator is a length byte.)
+
 Rename the module?
 ~~~~~~~~~~~~~~~~~~
 
