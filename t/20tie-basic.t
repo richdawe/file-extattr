@@ -1,7 +1,7 @@
 #!perl -T
 
 use strict;
-use Test::More tests => 5;
+use Test::More tests => 12;
 use File::Temp qw(tempfile);
 use File::ExtAttr::Tie;
 use File::ExtAttr qw(getfattr);
@@ -20,22 +20,44 @@ tie %extattr, 'File::ExtAttr::Tie', $filename; # ok()?
 @ks = grep { !/^security\./ } keys(%extattr);
 ok(scalar(@ks) == 0);
 
-# Check that creation works.
-my $k = 'user.foo';
-my $v = '123';
+# Test multiple attributes.
+my %test_attrs = ( 'user.foo' => '123', 'user.bar' => '456' );
+my $k;
 
-$extattr{$k} = $v;
-is(getfattr($filename, "$k"), $v);
+foreach $k (sort(keys(%test_attrs)))
+{
+    my $v = $test_attrs{$k};
 
-# Check that updating works.
-$extattr{$k} = "$v$v";
-is(getfattr($filename, "$k"), "$v$v");
+    # Check that creation works.
+    $extattr{$k} = $v;
+    is(getfattr($filename, "$k"), $v);
 
-$extattr{$k} = $v;
-is(getfattr($filename, "$k"), $v);
+    # Check that updating works.
+    $extattr{$k} = "$v$v";
+    is(getfattr($filename, "$k"), "$v$v");
 
-# Check that deletion works.
-delete $extattr{$k};
-is(getfattr($filename, "$k"), undef);
+    $extattr{$k} = $v;
+    is(getfattr($filename, "$k"), $v);
+
+    # Check that deletion works.
+    delete $extattr{$k};
+    is(getfattr($filename, "$k"), undef);
+}
+
+# Recreate the keys and check that they're all in the hash.
+
+foreach $k (sort(keys(%test_attrs)))
+{
+    my $v = $test_attrs{$k};
+
+    # Check that creation works.
+    $extattr{$k} = $v;
+    is(getfattr($filename, "$k"), $v);
+}
+
+# Check there are only our extattrs; ignore SELinux security extattrs.
+@ks = grep { !/^security\./ } keys(%extattr);
+ok(scalar(@ks) == scalar(keys(%test_attrs)));
+print '# '.join(' ', @ks)."\n";
 
 END {unlink $filename if $filename};
