@@ -77,7 +77,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw(
 );
 
-our $VERSION = '0.05';
+our $VERSION = '1.00';
 
 #this is used by getxattr(), needs documentation
 $File::ExtAttr::MAX_INITIAL_VALUELEN = 255;

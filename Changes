@@ -1,5 +1,9 @@
 Revision history for Perl extension File::ExtAttr.
 
+1.00 2006-08-15
+    - (richdawe) Add support for Solaris 10.
+    - (richdawe) Add support for File::ExtAttr::Tie on *BSD.
+
 0.05 2006-05-27
     - (richdawe) Add support for FreeBSD 6.0. This may also work
                  with NetBSD >= 4.0 and OpenBSD > 3.8.
