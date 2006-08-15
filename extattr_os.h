@@ -2,6 +2,8 @@
 #define EXTATTR_OS_H
 
 /* OS detection */
+#include <sys/param.h>
+
 #ifdef BSD
 #define EXTATTR_BSD
 #endif
@@ -17,7 +19,7 @@
 #endif
 
 /* Include appropriate header for this OS, defaulting to Linux-style */
-#ifdef EXTATTR_BSD
+#if defined(EXTATTR_BSD)
 #include "extattr_bsd.h"
 #elif defined(EXTATTR_MACOSX)
 #include "extattr_macosx.h"

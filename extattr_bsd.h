@@ -15,4 +15,12 @@ int bsd_fsetxattr (const int fd,
 		   const char *attrvalue,
 		   const size_t slen);
 
+ssize_t bsd_listxattr (const char *path,
+		       char *buf,
+		       const size_t buflen);
+
+ssize_t bsd_flistxattr (const int fd,
+			char *buf,
+			const size_t buflen);
+
 #endif /* EXTATTR_BSD_H */
