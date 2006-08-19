@@ -10,24 +10,24 @@ File::ExtAttr - Perl extension for accessing extended attributes of files
   use IO::File;
   
   # Manipulate the extended attributes of files.
-  setfattr('foo.txt', 'user.colour', 'red') || die;
-  my $colour = getfattr('bar.txt', 'user.colour');
+  setfattr('foo.txt', 'colour', 'red') || die;
+  my $colour = getfattr('bar.txt', 'colour');
   if (defined($colour))
   {
       print $colour;
-      delfattr('bar.txt', 'user.colour');
+      delfattr('bar.txt', 'colour');
   }
   
   # Manipulate the extended attributes of a file via a file handle.
   my $fh = new IO::File('<foo.txt') || die;
-  setfattr($fh, 'user.colour', 'red') || die;
+  setfattr($fh, 'colour', 'red') || die;
   
   $fh = new IO::File('<bar.txt') || die;
-  $colour = getfattr($fh, 'user.colour');
+  $colour = getfattr($fh, 'colour');
   if (defined($colour))
   {
       print $colour;
-      delfattr($fh, 'user.colour');
+      delfattr($fh, 'colour');
   }
 
 =head1 DESCRIPTION
@@ -44,11 +44,66 @@ This module is aimed at Linux, Unix or Unix-like operating systems
 (e.g.: Mac OS X, FreeBSD, NetBSD, OpenBSD).
 
 Extended attributes may also not be supported by your filesystem
-or require special options to be enabled for a particular filesystem
-(e.g. "mount -o user_xattr /dev/hda1 /some/path").
+or require special options to be enabled for a particular filesystem.
+E.g.:
 
-NOTE: The API is not stable. It may change as part of supporting
-multiple operating systems.
+  mount -o user_xattr /dev/hda1 /some/path
+
+=head2 Namespaces
+
+Some implementations of extended attributes support namespacing.
+In those implementations, the attribute is referred to by namespace
+and attribute name.
+
+=over 4
+
+=item Linux
+
+The primary namespaces are C<user> for user programs;
+C<security>, C<system> and C<trusted> for file security/access-control.
+See L<http://www.die.net/doc/linux/man/man5/attr.5.html>
+for more details.
+
+Namespaces on Linux are described by a string, but only certain values
+are supported by filesystems. In general C<user>, C<security>, C<system>
+and C<trusted> are supported, by others may be supported --
+e.g.: C<os2> on JFS. File::Extattr will be able to access any of these.
+
+=item FreeBSD, NetBSD, OpenBSD
+
+*BSD have two namespaces: C<user> and C<system>.
+
+Namespaces on *BSD are described by an integer. File::ExtAttr will only
+be able to access attributes in C<user> and C<system>.
+
+=item Mac OS X
+
+OS X has no support for namespaces.
+
+=item Solaris
+
+Solaris has no support for namespaces.
+
+=back
+
+=head2 Flags
+
+The functions take a hash reference as their final parameter,
+which can specify flags to modify the behaviour of the functions.
+The flags specific to a function are documented in the function's
+description.
+
+All functions support a C<namespace> flag. E.g.:
+
+  use File::ExtAttr ':all';
+  use IO::File;
+  
+  # Manipulate the extended attributes of files.
+  setfattr('foo.txt', 'colour', 'red') || die;
+  my $colour = getfattr('bar.txt', 'colour', { namespace => 'user');
+
+If no namespace is specified, the default namespace will be used.
+On Linux and *BSD the default namespace will be C<user>.
 
 =cut
 
@@ -135,13 +190,11 @@ sub _is_fh
     return $is_fh;
 }
 
-=item getfattr([$filename | $filehandle], $attrname, [$flags])
+=item getfattr([$filename | $filehandle], $attrname, [\%flags])
 
 Return the value of the attribute named C<$attrname>
 for the file named C<$filename> or referenced by the open filehandle
 C<$filehandle> (which should be an IO::Handle).
-
-C<$flags> are currently unused.
 
 If no attribute is found, returns C<undef>. Otherwise gives a warning.
 
@@ -158,11 +211,13 @@ sub getfattr
         : _getfattr($file, @_);
 }
 
-=item setfattr([$filename | $filehandle], $attrname, $attrval, [$flags])
+=item setfattr([$filename | $filehandle], $attrname, $attrval, [\%flags])
 
 Set the attribute named C<$attrname> with the value C<$attrval>
 for the file named C<$filename> or referenced by the open filehandle
 C<$filehandle> (which should be an IO::Handle).
+
+XXX: FIXME: Below
 
 C<$flags> allows control of whether the attribute should be created
 or should replace an existing attribute's value. The value
@@ -190,13 +245,11 @@ sub setfattr
         : _setfattr($file, @_);
 }
 
-=item delfattr([$filename | $filehandle], $attrname, [$flags])
+=item delfattr([$filename | $filehandle], $attrname, [\%flags])
 
 Delete the attribute named C<$attrname> for the file named C<$filename>
 or referenced by the open filehandle C<$filehandle>
 (which should be an IO::Handle).
-
-C<$flags> are currently unused.
 
 Returns true on success, otherwise false and a warning is issued.
 
@@ -213,12 +266,10 @@ sub delfattr
         : _delfattr($file, @_);
 }
 
-=item listfattr([$filename | $filehandle], [$flags])
+=item listfattr([$filename | $filehandle], [\%flags])
 
 Return the attributes on the file named C<$filename> or referenced by the open
 filehandle C<$filehandle> (which should be an IO::Handle).
-
-C<$flags> are currently unused.
 
 Returns undef on failure and $! will be set.
 
@@ -246,8 +297,8 @@ sub listfattr
 
 None by default.
 
-You can request that C<getfattr>, C<setfattr> and C<delfattr> be exported
-using the tag ":all".
+You can request that C<getfattr>, C<setfattr>, C<delfattr>
+and C<listfattr> be exported using the tag ":all".
 
 =head2 Exportable constants
 

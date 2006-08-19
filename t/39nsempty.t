@@ -5,7 +5,7 @@
 
 ##########################
 
-# change 'tests => 2' to 'tests => last_test_to_print';
+# Test an explicitly empty namespace
 
 use strict;
 use Test::More tests => 8;
@@ -29,25 +29,19 @@ my $val = "ZZZadlf03948alsdjfaslfjaoweir12l34kealfkjalskdfas90d8fajdlfkj./.,f";
 
 print "# using $filename\n";
 
-#for (1..30000) { #checking memory leaks
+#set it - should fail
+undef $@;
+eval { setfattr($filename, "$key", $val, { namespace => '' }); };
+isnt ($@, undef);
 
-   #will die if xattr stuff doesn't work at all
-   setfattr($filename, "$key", $val) || die "setfattr failed on filename $filename: $!"; 
+#read it back - should be missing
+is (getfattr($filename, "$key", { namespace => '' }), undef);
 
-   #set it
-   is (setfattr($filename, "$key", $val), 1);
+#delete it - should fail
+is (delfattr($filename, "$key", { namespace => '' }), 0);
 
-   #read it back
-   is (getfattr($filename, "$key"), $val);
-
-   #delete it
-   ok (delfattr($filename, "$key"));
-
-   #check that it's gone
-   is (getfattr($filename, "$key"), undef);
-#}
-#print STDERR "done\n";
-#<STDIN>;
+#check that it's gone
+is (getfattr($filename, "$key", { namespace => '' }), undef);
 
 ##########################
 # IO::Handle-based tests #
@@ -57,25 +51,17 @@ $fh = new IO::File("<$filename") || die "Unable to open $filename";
 
 print "# using file descriptor ".$fh->fileno()."\n";
 
-#for (1..30000) { #checking memory leaks
+undef $@;
+eval { setfattr($fh->fileno(), "$key", $val, { namespace => '' }); };
+isnt ($@, undef);
 
-   #will die if xattr stuff doesn't work at all
-   setfattr($fh, "$key", $val)
-    || die "setfattr failed on file descriptor ".$fh->fileno().": $!"; 
+#read it back - should be missing
+is (getfattr($fh->fileno(), "$key", { namespace => '' }), undef);
 
-   #set it
-   is (setfattr($fh, "$key", $val), 1);
+#delete it - should fail
+is (delfattr($fh->fileno(), "$key", { namespace => '' }), 0);
 
-   #read it back
-   is (getfattr($fh, "$key"), $val);
-
-   #delete it
-   ok (delfattr($fh, "$key"));
-
-   #check that it's gone
-   is (getfattr($fh, "$key"), undef);
-#}
-#print STDERR "done\n";
-#<STDIN>;
+#check that it's gone
+is (getfattr($fh->fileno(), "$key", { namespace => '' }), undef);
 
 END {unlink $filename if $filename};

@@ -18,6 +18,10 @@
 #endif
 #endif
 
+#if defined(linux)
+#define EXTATTR_LINUX
+#endif
+
 /* Include appropriate header for this OS, defaulting to Linux-style */
 #if defined(EXTATTR_BSD)
 #include "extattr_bsd.h"

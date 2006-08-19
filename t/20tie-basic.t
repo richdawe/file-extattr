@@ -21,7 +21,7 @@ tie %extattr, 'File::ExtAttr::Tie', $filename; # ok()?
 ok(scalar(@ks) == 0);
 
 # Test multiple attributes.
-my %test_attrs = ( 'user.foo' => '123', 'user.bar' => '456' );
+my %test_attrs = ( 'foo' => '123', 'bar' => '456' );
 my $k;
 
 foreach $k (sort(keys(%test_attrs)))

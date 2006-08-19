@@ -32,19 +32,20 @@ print "# using $filename\n";
 #for (1..30000) { #checking memory leaks
 
    #will die if xattr stuff doesn't work at all
-   setfattr($filename, "$key", $val) || die "setfattr failed on filename $filename: $!"; 
+   setfattr($filename, "$key", $val, { namespace => 'user' })
+     || die "setfattr failed on filename $filename: $!"; 
 
    #set it
-   is (setfattr($filename, "$key", $val), 1);
+   is (setfattr($filename, "$key", $val, { namespace => 'user' }), 1);
 
    #read it back
-   is (getfattr($filename, "$key"), $val);
+   is (getfattr($filename, "$key", { namespace => 'user' }), $val);
 
    #delete it
-   ok (delfattr($filename, "$key"));
+   ok (delfattr($filename, "$key", { namespace => 'user' }));
 
    #check that it's gone
-   is (getfattr($filename, "$key"), undef);
+   is (getfattr($filename, "$key", { namespace => 'user' }), undef);
 #}
 #print STDERR "done\n";
 #<STDIN>;
@@ -60,20 +61,20 @@ print "# using file descriptor ".$fh->fileno()."\n";
 #for (1..30000) { #checking memory leaks
 
    #will die if xattr stuff doesn't work at all
-   setfattr($fh, "$key", $val)
-    || die "setfattr failed on file descriptor ".$fh->fileno().": $!"; 
+   setfattr($fh, "$key", $val, { namespace => 'user' })
+     || die "setfattr failed on file descriptor ".$fh->fileno().": $!"; 
 
    #set it
-   is (setfattr($fh, "$key", $val), 1);
+   is (setfattr($fh, "$key", $val, { namespace => 'user' }), 1);
 
    #read it back
-   is (getfattr($fh, "$key"), $val);
+   is (getfattr($fh, "$key", { namespace => 'user' }), $val);
 
    #delete it
-   ok (delfattr($fh, "$key"));
+   ok (delfattr($fh, "$key", { namespace => 'user' }));
 
    #check that it's gone
-   is (getfattr($fh, "$key"), undef);
+   is (getfattr($fh, "$key", { namespace => 'user' }), undef);
 #}
 #print STDERR "done\n";
 #<STDIN>;

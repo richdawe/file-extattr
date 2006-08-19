@@ -25,7 +25,7 @@ _setfattr (path, attrname, attrvalueSV, flags = 0)
          const char *path
          const char *attrname
          SV * attrvalueSV
-         int flags
+         HV * flags
     PREINIT:
         STRLEN slen;
         char * attrvalue;
@@ -50,7 +50,7 @@ _fsetfattr (fd, attrname, attrvalueSV, flags = 0)
          int fd
          const char *attrname
          SV * attrvalueSV
-         int flags
+         HV * flags
     PREINIT:
         STRLEN slen;
         char * attrvalue;
@@ -74,21 +74,21 @@ SV *
 _getfattr(path, attrname, flags = 0)
         const char *path
         const char *attrname
-        int flags
+        HV * flags
    PREINIT:
         char * attrvalue;
         int attrlen;
         ssize_t buflen;
 
    CODE:
-        buflen = portable_lenxattr(path, attrname);
+        buflen = portable_lenxattr(path, attrname, flags);
         if (buflen <= 0)
 	  buflen = SvIV(get_sv(MAX_INITIAL_VALUELEN_VARNAME, FALSE));
 
         attrvalue = NULL;
         New(1, attrvalue, buflen, char);
 
-        attrlen = portable_getxattr(path, attrname, attrvalue, buflen);
+        attrlen = portable_getxattr(path, attrname, attrvalue, buflen, flags);
         if (attrlen == -1){
 
             //key not found, just return undef
@@ -115,21 +115,21 @@ SV *
 _fgetfattr(fd, attrname, flags = 0)
         int fd
         const char *attrname
-        int flags
+        HV * flags
    PREINIT:
         char * attrvalue;
         int attrlen;
         ssize_t buflen;
 
    CODE:
-        buflen = portable_flenxattr(fd, attrname);
+        buflen = portable_flenxattr(fd, attrname, flags);
         if (buflen <= 0)
 	  buflen = SvIV(get_sv(MAX_INITIAL_VALUELEN_VARNAME, FALSE));
 
         attrvalue = NULL;
         New(1, attrvalue, buflen, char);
 
-        attrlen = portable_fgetxattr(fd, attrname, attrvalue, buflen);
+        attrlen = portable_fgetxattr(fd, attrname, attrvalue, buflen, flags);
         if (attrlen == -1){
 
             //key not found, just return undef
@@ -156,9 +156,9 @@ int
 _delfattr (path, attrname, flags = 0)
         const char *path
         const char *attrname
-        int flags
+        HV * flags
     CODE:
-        RETVAL = (portable_removexattr(path, attrname) == 0);
+        RETVAL = (portable_removexattr(path, attrname, flags) == 0);
     
     OUTPUT: 
         RETVAL
@@ -168,9 +168,9 @@ int
 _fdelfattr (fd, attrname, flags = 0)
         int fd
         const char *attrname
-        int flags
+        HV * flags
     CODE:
-        RETVAL = (portable_fremovexattr(fd, attrname) == 0);
+        RETVAL = (portable_fremovexattr(fd, attrname, flags) == 0);
     
     OUTPUT: 
         RETVAL
@@ -179,7 +179,7 @@ void
 _listfattr (path, fd, flags = 0)
         const char *path
         int fd
-        int flags
+        HV * flags
     PREINIT:
         ssize_t size, ret;
         char *namebuf = NULL;
@@ -187,9 +187,9 @@ _listfattr (path, fd, flags = 0)
 
     PPCODE:
         if(fd == -1)
-            size = portable_listxattr(path, NULL, 0);
+            size = portable_listxattr(path, NULL, 0, flags);
         else
-            size = portable_flistxattr(fd, NULL, 0);
+            size = portable_flistxattr(fd, NULL, 0, flags);
 
         if (size == -1)
         {
@@ -202,9 +202,9 @@ _listfattr (path, fd, flags = 0)
         namebuf = malloc(size);
 
         if (fd == -1)
-            ret = portable_listxattr(path, namebuf, size);
+            ret = portable_listxattr(path, namebuf, size, flags);
         else
-            ret = portable_flistxattr(fd, namebuf, size);
+            ret = portable_flistxattr(fd, namebuf, size, flags);
 
         // There could be a race condition here, if someone adds a new
         // attribute between the two listxattr calls. However it just means we

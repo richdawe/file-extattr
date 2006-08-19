@@ -38,32 +38,32 @@ print "# using $filename\n";
    #on my /var partition, and 920 is the biggest for my loopback partition.
    #What's up with that?
    #setfattr($filename, "$key-2", ('x' x 3991)) || die "setfattr failed on $filename: $!"; 
-   setfattr($filename, "$key", $longval)
+   setfattr($filename, "$key", $longval, { namespace => 'user' })
       || die "setfattr failed on $filename: $!"; 
 
    #set it
-   is (setfattr($filename, "$key", $longval), 1);
+   is (setfattr($filename, "$key", $longval, { namespace => 'user' }), 1);
 
    #read it back
-   is (getfattr($filename, "$key"), $longval);
+   is (getfattr($filename, "$key", { namespace => 'user' }), $longval);
 
    #delete it
-   ok (delfattr($filename, "$key"));
+   ok (delfattr($filename, "$key", { namespace => 'user' }));
 
    #check that it's gone
-   is (getfattr($filename, "$key"), undef);
+   is (getfattr($filename, "$key", { namespace => 'user' }), undef);
 
    #set it
-   is (setfattr($filename, "$key", $longval2), 1);
+   is (setfattr($filename, "$key", $longval2, { namespace => 'user' }), 1);
 
    #read it back
-   is (getfattr($filename, "$key"), $longval2);
+   is (getfattr($filename, "$key", { namespace => 'user' }), $longval2);
 
    #delete it
-   ok (delfattr($filename, "$key"));
+   ok (delfattr($filename, "$key", { namespace => 'user' }));
 
    #check that it's gone
-   is (getfattr($filename, "$key"), undef);
+   is (getfattr($filename, "$key", { namespace => 'user' }), undef);
 #}
 #print STDERR "done\n";
 #<STDIN>;
@@ -82,32 +82,32 @@ print "# using file descriptor ".$fh->fileno()."\n";
    #on my /var partition, and 920 is the biggest for my loopback partition.
    #What's up with that?
    #setfattr($filename, "$key-2", ('x' x 3991)) || die "setfattr failed on $filename: $!"; 
-   setfattr($fh, "$key", $longval)
+   setfattr($fh, "$key", $longval, { namespace => 'user' })
     || die "setfattr failed on file descriptor ".$fh->fileno().": $!"; 
 
    #set it
-   is (setfattr($fh, "$key", $longval), 1);
+   is (setfattr($fh, "$key", $longval, { namespace => 'user' }), 1);
 
    #read it back
-   is (getfattr($fh, "$key"), $longval);
+   is (getfattr($fh, "$key"), $longval, { namespace => 'user' });
 
    #delete it
-   ok (delfattr($fh, "$key"));
+   ok (delfattr($fh, "$key", { namespace => 'user' }));
 
    #check that it's gone
-   is (getfattr($fh, "$key"), undef);
+   is (getfattr($fh, "$key", { namespace => 'user' }), undef);
 
    #set it
-   is (setfattr($fh, "$key", $longval2), 1);
+   is (setfattr($fh, "$key", $longval2, { namespace => 'user' }), 1);
 
    #read it back
-   is (getfattr($fh, "$key"), $longval2);
+   is (getfattr($fh, "$key", { namespace => 'user' }), $longval2);
 
    #delete it
-   ok (delfattr($fh, "$key"));
+   ok (delfattr($fh, "$key", { namespace => 'user' }));
 
    #check that it's gone
-   is (getfattr($fh, "$key"), undef);
+   is (getfattr($fh, "$key", { namespace => 'user' }), undef);
 #}
 #print STDERR "done\n";
 #<STDIN>;
