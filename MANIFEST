@@ -20,10 +20,12 @@ t/00load.t
 t/01distribution.t
 t/02load-all.t
 t/03pod-coverage.t
-t/10constants.t
 t/11basic.t
 t/13long.t
 t/14optional.t
+t/15create.t
+t/16replace.t
+t/17createreplace.t
 t/20tie-basic.t
 t/30nsbasic.t
 t/32nsnonuser.t
