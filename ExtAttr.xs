@@ -35,10 +35,7 @@ _setfattr (path, attrname, attrvalueSV, flags = 0)
         attrvalue = SvPV(attrvalueSV, slen);
         rc = portable_setxattr(path, attrname, attrvalue, slen, flags);
         if (rc == -1)
-        {
-                setattr_warn("setxattr", attrname, errno);
-                XSRETURN_UNDEF;
-        }
+          setattr_warn("setxattr", attrname, errno);
         RETVAL = (rc == 0);
 
     OUTPUT: 
@@ -60,10 +57,7 @@ _fsetfattr (fd, attrname, attrvalueSV, flags = 0)
         attrvalue = SvPV(attrvalueSV, slen);
         rc = portable_fsetxattr(fd, attrname, attrvalue, slen, flags);
         if (rc == -1)
-        {
-                setattr_warn("fsetxattr", attrname, errno);
-                XSRETURN_UNDEF;
-        }
+          setattr_warn("fsetxattr", attrname, errno);
         RETVAL = (rc == 0);
 
     OUTPUT: 

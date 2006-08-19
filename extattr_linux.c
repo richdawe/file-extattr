@@ -8,6 +8,29 @@
 
 static const char NAMESPACE_DEFAULT[] = "user";
 
+static int
+flags2setflags (struct hv *flags)
+{
+  static const char CREATE_KEY[] = "create";
+  static const char REPLACE_KEY[] = "replace";
+  const size_t CREATE_KEYLEN = strlen(CREATE_KEY);
+  const size_t REPLACE_KEYLEN = strlen(REPLACE_KEY);
+  SV **psv_ns;
+  int ret = 0;
+
+  /*
+   * ASSUMPTION: Perl layer must ensure that create & replace
+   * aren't used at the same time.
+   */
+  if (flags && (psv_ns = hv_fetch(flags, CREATE_KEY, CREATE_KEYLEN, 0)))
+    ret = SvIV(*psv_ns) ? XATTR_CREATE : 0;
+
+  if (flags && (psv_ns = hv_fetch(flags, REPLACE_KEY, REPLACE_KEYLEN, 0)))
+    ret = SvIV(*psv_ns) ? XATTR_REPLACE : 0;
+
+  return ret;
+}
+
 static char *
 flags2namespace (struct hv *flags)
 {
@@ -69,12 +92,14 @@ linux_setxattr (const char *path,
 {
   int ret;
   char *q;
+  int setflags;
 
-  /* XXX: Other flags? */
+  setflags = flags2setflags(flags);
   q = qualify_attrname(attrname, flags);
+
   if (q)
   {
-    ret = setxattr(path, q, attrvalue, slen, 0);
+    ret = setxattr(path, q, attrvalue, slen, setflags);
     free(q);
   }
   else
@@ -95,12 +120,14 @@ linux_fsetxattr (const int fd,
 {
   int ret;
   char *q;
+  int setflags;
 
-  /* XXX: Other flags? */
+  setflags = flags2setflags(flags);
   q = qualify_attrname(attrname, flags);
+
   if (q)
   {
-    ret = fsetxattr(fd, q, attrvalue, slen, 0);
+    ret = fsetxattr(fd, q, attrvalue, slen, setflags);
     free(q);
   }
   else

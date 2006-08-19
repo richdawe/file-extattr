@@ -217,18 +217,12 @@ Set the attribute named C<$attrname> with the value C<$attrval>
 for the file named C<$filename> or referenced by the open filehandle
 C<$filehandle> (which should be an IO::Handle).
 
-XXX: FIXME: Below
-
-C<$flags> allows control of whether the attribute should be created
-or should replace an existing attribute's value. The value
-C<File::ExtAttr::XATTR_CREATE> will cause setfattr to fail
-if the attribute already exists. The value C<File::ExtAttr::XATTR_REPLACE>
-will cause setfattr to fail if the attribute does not already exist.
-If C<$flags> is omitted, then the attribute will be created if necessary
-or silently replaced.
-
-NOTE: C<XATTR_*> are currently Linux-specific. A more portable set of flags
-is on the to-do list.
+C<%flags> allows control of whether the attribute should be created
+or should replace an existing attribute's value. If the key C<create>
+is true, setfattr will fail if the attribute already exists. If the key
+C<replace> is true, setfattr will fail if the attribute
+does not already exist. If neither is specified, then the attribute
+will be created (if necessary) or silently replaced.
 
 If the attribute could not be set, a warning is issued.
 
@@ -236,13 +230,16 @@ If the attribute could not be set, a warning is issued.
 
 sub setfattr
 {
-    my $file = shift;
+    my ($file, $attrname, $attrval, $flagsref) = @_;
+
+    die "Only one of the 'create' and 'replace' options can be passed to setfattr"
+      if ($flagsref->{create} && $flagsref->{replace});
 
     return _is_fh($file)
         # File handle
-        ? _fsetfattr($file->fileno(), @_)
+        ? _fsetfattr($file->fileno(), $attrname, $attrval, $flagsref)
         # Filename
-        : _setfattr($file, @_);
+        : _setfattr($file, $attrname, $attrval, $flagsref);
 }
 
 =item delfattr([$filename | $filehandle], $attrname, [\%flags])
