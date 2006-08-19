@@ -6,16 +6,12 @@
 #include "helpers.h"
 #include "portable.h"
 
-/* NB: Include this after portable.h (or <sys/xattr.h>) */
-#include "const-c.inc"
 
 #define MAX_INITIAL_VALUELEN_VARNAME "File::ExtAttr::MAX_INITIAL_VALUELEN"
                                         /* Richard, fixme! */
 
 
 MODULE = File::ExtAttr        PACKAGE = File::ExtAttr		
-
-INCLUDE: const-xs.inc
 
 PROTOTYPES: ENABLE
 
