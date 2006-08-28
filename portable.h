@@ -19,7 +19,7 @@ portable_setxattr (const char *path,
 #elif defined(EXTATTR_BSD)
   return bsd_setxattr(path, attrname, attrvalue, slen /* XXX: flags? */);
 #elif defined(EXTATTR_SOLARIS)
-  return solaris_setxattr(path, attrname, attrvalue, slen, 0 /* XXX: flags? */);
+  return solaris_setxattr(path, attrname, attrvalue, slen, flags);
 #else
   return linux_setxattr(path, attrname, attrvalue, slen, flags);
 #endif
@@ -37,7 +37,7 @@ portable_fsetxattr (const int fd,
 #elif defined(EXTATTR_BSD)
   return bsd_fsetxattr(fd, attrname, attrvalue, slen /* XXX: flags? */);
 #elif defined(EXTATTR_SOLARIS)
-  return solaris_fsetxattr(fd, attrname, attrvalue, slen, 0 /* XXX: flags? */);
+  return solaris_fsetxattr(fd, attrname, attrvalue, slen, flags);
 #else
   return linux_fsetxattr(fd, attrname, attrvalue, slen, flags);
 #endif
@@ -56,7 +56,7 @@ portable_getxattr (const char *path,
   /* XXX: flags? Namespace? */
   return extattr_get_file(path, EXTATTR_NAMESPACE_USER, attrname, attrvalue, slen);
 #elif defined(EXTATTR_SOLARIS)
-  return solaris_getxattr(path, attrname, attrvalue, slen /* XXX: flags? */);
+  return solaris_getxattr(path, attrname, attrvalue, slen, flags);
 #else
   return linux_getxattr(path, attrname, attrvalue, slen, flags);
 #endif
@@ -75,7 +75,7 @@ portable_fgetxattr (const int fd,
   /* XXX: flags? Namespace? */
   return extattr_get_fd(fd, EXTATTR_NAMESPACE_USER, attrname, attrvalue, slen);
 #elif defined(EXTATTR_SOLARIS)
-  return solaris_fgetxattr(fd, attrname, attrvalue, slen /* XXX: flags? */);
+  return solaris_fgetxattr(fd, attrname, attrvalue, slen, flags);
 #else
   return linux_fgetxattr(fd, attrname, attrvalue, slen, flags);
 #endif
@@ -114,7 +114,7 @@ portable_removexattr (const char *path, const char *name, struct hv *flags)
   /* XXX: flags? Namespace? */
   return extattr_delete_file(path, EXTATTR_NAMESPACE_USER, name);
 #elif defined(EXTATTR_SOLARIS)
-  return solaris_removexattr(path, name /* XXX: flags? */);
+  return solaris_removexattr(path, name, flags);
 #else
   return linux_removexattr(path, name, flags);
 #endif
@@ -129,7 +129,7 @@ portable_fremovexattr (const int fd, const char *name, struct hv *flags)
   /* XXX: flags? Namespace? */
   return extattr_delete_fd(fd, EXTATTR_NAMESPACE_USER, name);
 #elif defined(EXTATTR_SOLARIS)
-  return solaris_fremovexattr(fd, name /* XXX: flags? */);
+  return solaris_fremovexattr(fd, name, flags);
 #else
   return linux_fremovexattr(fd, name, flags);
 #endif
@@ -146,7 +146,7 @@ portable_listxattr(const char *path,
 #elif defined(EXTATTR_BSD)
   return bsd_listxattr(path, buf, slen /* XXX: flags? */);
 #elif defined(EXTATTR_SOLARIS)
-  return solaris_listxattr(path, buf, slen /* XXX: flags? */);
+  return solaris_listxattr(path, buf, slen, flags);
 #else
   return linux_listxattr(path, buf, slen, flags);
 #endif
@@ -163,7 +163,7 @@ portable_flistxattr(const int fd,
 #elif defined(EXTATTR_BSD)
   return bsd_flistxattr(fd, buf, slen /* XXX: flags? */);
 #elif defined(EXTATTR_SOLARIS)
-  return solaris_flistxattr(fd, buf, slen /* XXX: flags? */);
+  return solaris_flistxattr(fd, buf, slen, flags);
 #else
   return linux_flistxattr(fd, buf, slen, flags);
 #endif

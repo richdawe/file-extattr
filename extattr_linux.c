@@ -6,13 +6,13 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#include "flags.h"
+
 static const char NAMESPACE_DEFAULT[] = "user";
 
 static int
 flags2setflags (struct hv *flags)
 {
-  static const char CREATE_KEY[] = "create";
-  static const char REPLACE_KEY[] = "replace";
   const size_t CREATE_KEYLEN = strlen(CREATE_KEY);
   const size_t REPLACE_KEYLEN = strlen(REPLACE_KEY);
   SV **psv_ns;
@@ -34,7 +34,6 @@ flags2setflags (struct hv *flags)
 static char *
 flags2namespace (struct hv *flags)
 {
-  static const char NAMESPACE_KEY[] = "namespace";
   const size_t NAMESPACE_KEYLEN = strlen(NAMESPACE_KEY);
   SV **psv_ns;
   char *ns = NULL;
