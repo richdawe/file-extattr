@@ -26,14 +26,14 @@ my $val = "ZZZadlf03948alsdjfaslfjaoweir12l34kealfkjalskdfas90d8fajdlfkj./.,f";
 
 #set it
 setfattr($filename, "$key", $val, { namespace => 'nonuser' });
-is ($warning =~ /(Operation not supported|No such file or directory)/, 1);
+is ($warning =~ /(Operation not supported|No such file or directory|Attribute not found)/, 1);
 
 #read it back
 is (getfattr($filename, "$key", { namespace => 'nonuser' }), undef);
 
 #delete it
 delfattr($filename, "$key", { namespace => 'nonuser' });
-is ($warning =~ /(Operation not supported|No such file or directory)/, 1);
+is ($warning =~ /(Operation not supported|No such file or directory|Attribute not found)/, 1);
 
 #check that it's gone
 is (getfattr($filename, "$key", { namespace => 'nonuser' }), undef);

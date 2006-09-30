@@ -203,6 +203,9 @@ will be created (if necessary) or silently replaced.
 
 If the attribute could not be set, a warning is issued.
 
+Note that C<create> cannot be implemented in a race-free manner on *BSD.
+If your code relies on the C<create> behaviour, it may be insecure on *BSD.
+
 =cut
 
 sub setfattr
