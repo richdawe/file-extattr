@@ -10,27 +10,6 @@
 
 static const char NAMESPACE_DEFAULT[] = "user";
 
-static int
-flags2setflags (struct hv *flags)
-{
-  const size_t CREATE_KEYLEN = strlen(CREATE_KEY);
-  const size_t REPLACE_KEYLEN = strlen(REPLACE_KEY);
-  SV **psv_ns;
-  int ret = 0;
-
-  /*
-   * ASSUMPTION: Perl layer must ensure that create & replace
-   * aren't used at the same time.
-   */
-  if (flags && (psv_ns = hv_fetch(flags, CREATE_KEY, CREATE_KEYLEN, 0)))
-    ret = SvIV(*psv_ns) ? XATTR_CREATE : 0;
-
-  if (flags && (psv_ns = hv_fetch(flags, REPLACE_KEY, REPLACE_KEYLEN, 0)))
-    ret = SvIV(*psv_ns) ? XATTR_REPLACE : 0;
-
-  return ret;
-}
-
 static char *
 flags2namespace (struct hv *flags)
 {
@@ -91,14 +70,21 @@ linux_setxattr (const char *path,
 {
   int ret;
   char *q;
-  int setflags;
+  File_ExtAttr_setflags_t setflags;
+  int xflags = 0;
 
-  setflags = flags2setflags(flags);
+  setflags = File_ExtAttr_flags2setflags(flags);
+  switch (setflags)
+  {
+  case SET_CREATEIFNEEDED: break;
+  case SET_CREATE:         xflags |= XATTR_CREATE; break;
+  case SET_REPLACE:        xflags |= XATTR_REPLACE; break;
+  }
+
   q = qualify_attrname(attrname, flags);
-
   if (q)
   {
-    ret = setxattr(path, q, attrvalue, slen, setflags);
+    ret = setxattr(path, q, attrvalue, slen, xflags);
     free(q);
   }
   else
@@ -119,14 +105,21 @@ linux_fsetxattr (const int fd,
 {
   int ret;
   char *q;
-  int setflags;
+  File_ExtAttr_setflags_t setflags;
+  int xflags = 0;
 
-  setflags = flags2setflags(flags);
+  setflags = File_ExtAttr_flags2setflags(flags);
+  switch (setflags)
+  {
+  case SET_CREATEIFNEEDED: break;
+  case SET_CREATE:         xflags |= XATTR_CREATE; break;
+  case SET_REPLACE:        xflags |= XATTR_REPLACE; break;
+  }
+
   q = qualify_attrname(attrname, flags);
-
   if (q)
   {
-    ret = fsetxattr(fd, q, attrvalue, slen, setflags);
+    ret = fsetxattr(fd, q, attrvalue, slen, xflags);
     free(q);
   }
   else
