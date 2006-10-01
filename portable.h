@@ -15,7 +15,7 @@ portable_setxattr (const char *path,
                    struct hv *flags)
 {
 #ifdef EXTATTR_MACOSX
-  return setxattr(path, attrname, attrvalue, slen, 0 /* XXX: flags? */);
+  return macosx_setxattr(path, attrname, attrvalue, slen, flags);
 #elif defined(EXTATTR_BSD)
   return bsd_setxattr(path, attrname, attrvalue, slen, flags);
 #elif defined(EXTATTR_SOLARIS)
@@ -33,7 +33,7 @@ portable_fsetxattr (const int fd,
                     struct hv *flags)
 {
 #ifdef EXTATTR_MACOSX
-  return fsetxattr(fd, attrname, attrvalue, slen, 0 /* XXX: flags? */);
+  return macosx_fsetxattr(fd, attrname, attrvalue, slen, flags);
 #elif defined(EXTATTR_BSD)
   return bsd_fsetxattr(fd, attrname, attrvalue, slen, flags);
 #elif defined(EXTATTR_SOLARIS)
@@ -51,7 +51,7 @@ portable_getxattr (const char *path,
                    struct hv *flags)
 {
 #ifdef EXTATTR_MACOSX
-  return getxattr(path, attrname, attrvalue, slen, 0, 0 /* XXX: flags? */);
+  return macosx_getxattr(path, attrname, attrvalue, slen, flags);
 #elif defined(EXTATTR_BSD)
   return bsd_getxattr(path, attrname, attrvalue, slen, flags);
 #elif defined(EXTATTR_SOLARIS)
@@ -69,7 +69,7 @@ portable_fgetxattr (const int fd,
                     struct hv *flags)
 {
 #ifdef EXTATTR_MACOSX
-  return fgetxattr(fd, attrname, attrvalue, slen, 0, 0 /* XXX: flags? */);
+  return macosx_fgetxattr(fd, attrname, attrvalue, slen, flags);
 #elif defined(EXTATTR_BSD)
   return bsd_fgetxattr(fd, attrname, attrvalue, slen, flags);
 #elif defined(EXTATTR_SOLARIS)
@@ -107,7 +107,7 @@ static inline int
 portable_removexattr (const char *path, const char *name, struct hv *flags)
 {
 #ifdef EXTATTR_MACOSX
-  return removexattr(path, name, 0 /* XXX: flags? */);
+  return macosx_removexattr(path, name, flags);
 #elif defined(EXTATTR_BSD)
   return bsd_removexattr(path, name, flags);
 #elif defined(EXTATTR_SOLARIS)
@@ -121,7 +121,7 @@ static inline int
 portable_fremovexattr (const int fd, const char *name, struct hv *flags)
 {
 #ifdef EXTATTR_MACOSX
-  return fremovexattr(fd, name, 0 /* XXX: flags? */);
+  return macosx_fremovexattr(fd, name, flags);
 #elif defined(EXTATTR_BSD)
   return bsd_fremovexattr(fd, name, flags);
 #elif defined(EXTATTR_SOLARIS)
@@ -138,7 +138,7 @@ portable_listxattr(const char *path,
                    struct hv *flags)
 {
 #ifdef EXTATTR_MACOSX
-  return listxattr(path, buf, slen, 0 /* XXX: flags? */);
+  return macosx_listxattr(path, buf, slen, flags);
 #elif defined(EXTATTR_BSD)
   return bsd_listxattr(path, buf, slen, flags);
 #elif defined(EXTATTR_SOLARIS)
@@ -155,7 +155,7 @@ portable_flistxattr(const int fd,
                     struct hv *flags)
 {
 #ifdef EXTATTR_MACOSX
-  return flistxattr(fd, buf, slen, 0 /* XXX: flags? */);
+  return macosx_flistxattr(fd, buf, slen, flags);
 #elif defined(EXTATTR_BSD)
   return bsd_flistxattr(fd, buf, slen, flags);
 #elif defined(EXTATTR_SOLARIS)

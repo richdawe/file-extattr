@@ -6,6 +6,7 @@ Revision history for Perl extension File::ExtAttr.
     - (richdawe) API change: Namespace and the create/replace flag
                  are now passed via a hash. This breaks API compatibility.
                  There should be no further API changes.
+                 NOTE: This has not been tested on Mac OS X.
 
 0.05 2006-05-27
     - (richdawe) Add support for FreeBSD 6.0. This may also work
