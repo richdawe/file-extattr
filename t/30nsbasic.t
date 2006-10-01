@@ -1,4 +1,4 @@
-#!perl -T
+#!perl -T -w
 
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl Linux-xattr.t'
@@ -8,9 +8,9 @@
 # change 'tests => 2' to 'tests => last_test_to_print';
 
 use strict;
-use Test::More tests => 8;
+use Test::More tests => 12;
 use File::Temp qw(tempfile);
-use File::ExtAttr qw(setfattr getfattr delfattr);
+use File::ExtAttr qw(setfattr getfattr delfattr listfattrns);
 use IO::File;
 
 my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
@@ -22,6 +22,8 @@ close $fh || die "can't close $filename $!";
 #     try unicode?
 my $key = "alskdfjadf2340zsdflksjdfa09eralsdkfjaldkjsldkfj";
 my $val = "ZZZadlf03948alsdjfaslfjaoweir12l34kealfkjalskdfas90d8fajdlfkj./.,f";
+
+my @ns;
 
 ##########################
 #  Filename-based tests  #
@@ -38,6 +40,10 @@ print "# using $filename\n";
    #set it
    is (setfattr($filename, "$key", $val, { namespace => 'user' }), 1);
 
+   #check user namespace exists now
+   @ns = listfattrns($filename);
+   is (grep(/^user$/, @ns), 1);
+
    #read it back
    is (getfattr($filename, "$key", { namespace => 'user' }), $val);
 
@@ -46,6 +52,10 @@ print "# using $filename\n";
 
    #check that it's gone
    is (getfattr($filename, "$key", { namespace => 'user' }), undef);
+
+   #check user namespace doesn't exist now
+   @ns = listfattrns($filename);
+   is (grep(/^user$/, @ns), 0);
 #}
 #print STDERR "done\n";
 #<STDIN>;
@@ -67,6 +77,10 @@ print "# using file descriptor ".$fh->fileno()."\n";
    #set it
    is (setfattr($fh, "$key", $val, { namespace => 'user' }), 1);
 
+   #check user namespace exists now
+   @ns = listfattrns($fh);
+   is (grep(/^user$/, @ns), 1);
+
    #read it back
    is (getfattr($fh, "$key", { namespace => 'user' }), $val);
 
@@ -75,6 +89,10 @@ print "# using file descriptor ".$fh->fileno()."\n";
 
    #check that it's gone
    is (getfattr($fh, "$key", { namespace => 'user' }), undef);
+
+   #check user namespace doesn't exist now
+   @ns = listfattrns($fh);
+   is (grep(/^user$/, @ns), 0);
 #}
 #print STDERR "done\n";
 #<STDIN>;

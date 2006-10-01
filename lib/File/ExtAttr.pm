@@ -124,7 +124,12 @@ our @ISA = qw(Exporter);
 # This allows declaration	use File::ExtAttr ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw( getfattr setfattr delfattr listfattr
+our %EXPORT_TAGS = ( 'all' => [ qw(
+  getfattr
+  setfattr
+  delfattr
+  listfattr
+  listfattrns
 ) ] );
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
@@ -261,7 +266,27 @@ sub listfattr
         ? _listfattr(undef, $file->fileno(), @_)
         # Filename
         : _listfattr($file, -1, @_);
+}
 
+=item listfattrns([$filename | $filehandle], [\%flags])
+
+Return a list containing the namespaces of attributes on the file named
+C<$filename> or referenced by the open filehandle C<$filehandle>
+(which should be an IO::Handle).
+
+Returns undef on failure and $! will be set.
+
+=cut
+
+sub listfattrns
+{
+    my $file = shift;
+
+    return _is_fh($file)
+        # File handle
+        ? _listfattrns(undef, $file->fileno(), @_)
+        # Filename
+        : _listfattrns($file, -1, @_);
 }
 
 =back

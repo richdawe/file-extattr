@@ -8,11 +8,42 @@
 
 #include "flags.h"
 
-static const char NAMESPACE_DEFAULT[] = "user";
+static void *
+memstr (void *buf, const char *str, const size_t buflen)
+{
+  void *p = buf;
+  size_t len = buflen;
+  const size_t slen = strlen(str);
+
+  /* Ignore empty strings and buffers. */
+  if ((slen == 0) || (buflen == 0))
+    p = NULL;
+
+  while (p && (len >= slen))
+  {
+    /*
+     * Find the first character of the string, then see if the rest
+     * matches.
+     */
+    p = memchr(p, str[0], len);
+    if (!p)
+      break;
+
+    if (memcmp(p, str, slen) == 0)
+      break;
+
+    /* Next! */
+    ++p;
+    --len;
+  }
+
+  return p;
+}
 
 static char *
 flags2namespace (struct hv *flags)
 {
+  static const char NAMESPACE_DEFAULT[] = "user";
   const size_t NAMESPACE_KEYLEN = strlen(NAMESPACE_KEY);
   SV **psv_ns;
   char *ns = NULL;
@@ -266,6 +297,141 @@ linux_flistxattr (const int fd,
                   struct hv *flags)
 {
   return flistxattr(fd, buf, buflen);
+}
+
+static ssize_t
+attrlist2nslist (char *sbuf, const size_t slen, char *buf, const size_t buflen)
+{
+  ssize_t sbuiltlen = 0;
+  ssize_t spos = 0;
+  int ret = -1;
+
+  for (spos = 0; (spos < slen); )
+  {
+    char *pns, *pval;
+
+    /* Get the namespace. */
+    pns = &sbuf[spos];
+    pval = strchr(pns, '.');
+    if (!pval)
+      break;
+
+    /* Point spos at the next attribute. */
+    spos += strlen(pval) + 1;
+
+    /* Check we haven't already seen this namespace. */
+    *pval = '\0';
+    ++pval;
+    if (memstr(sbuf, pns, sbuiltlen) != NULL)
+      continue;
+
+    /*
+     * We build the results in sbuf. So sbuf will contain the list
+     * returned by listxattr and the list of namespaces.
+     * We shift the namespaces from the list to the start of the buffer.
+     */
+    memmove(&sbuf[sbuiltlen], pns, strlen(pns) + 1 /* nul */);
+    sbuiltlen += strlen(pns) + 1;
+  }
+
+  if (buflen == 0)
+  {
+    /* Return what space is required. */
+    ret = sbuiltlen;
+  }
+  else if (sbuiltlen <= buflen)
+  {
+    memcpy(buf, sbuf, sbuiltlen);
+    ret = sbuiltlen;
+  }
+  else
+  {
+    errno = ERANGE;
+    ret = -1;
+  }
+
+  return ret;
+}
+
+/* XXX: Just return a Perl list? */
+ssize_t
+linux_listxattrns (const char *path,
+		   char *buf,
+		   const size_t buflen,
+		   struct hv *flags)
+{
+  ssize_t slen;
+  ssize_t ret;
+
+  /*
+   * Get a buffer of nul-delimited "namespace.attribute"s,
+   * then extract the namespaces into buf.
+   */
+  slen = listxattr(path, buf, 0);
+  if (slen >= 0)
+  {
+    char *sbuf;
+   
+    sbuf = malloc(slen);
+    if (sbuf)
+      slen = listxattr(path, sbuf, slen);
+    else
+      ret = -1;
+
+    if (slen)
+      ret = attrlist2nslist(sbuf, slen, buf, buflen);
+    else
+      ret = slen;
+
+    if (sbuf)
+      free(sbuf);
+  }
+  else
+  {
+    ret = slen;
+  }
+
+  return ret;
+}
+
+ssize_t
+linux_flistxattrns (const int fd,
+		    char *buf,
+		    const size_t buflen,
+		    struct hv *flags)
+{
+  ssize_t slen;
+  ssize_t ret;
+
+  /*
+   * Get a buffer of nul-delimited "namespace.attribute"s,
+   * then extract the namespaces into buf.
+   */
+  slen = flistxattr(fd, buf, 0);
+  if (slen >= 0)
+  {
+    char *sbuf;
+   
+    sbuf = malloc(slen);
+    if (sbuf)
+      slen = flistxattr(fd, sbuf, slen);
+    else
+      ret = -1;
+
+    if (slen)
+      ret = attrlist2nslist(sbuf, slen, buf, buflen);
+    else
+      ret = slen;
+
+    if (sbuf)
+      free(sbuf);
+  }
+  else
+  {
+    ret = slen;
+  }
+
+  return ret;
 }
 
 #endif /* EXTATTR_LINUX */

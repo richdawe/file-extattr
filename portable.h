@@ -165,4 +165,38 @@ portable_flistxattr(const int fd,
 #endif
 }
 
+static inline int
+portable_listxattrns(const char *path,
+		     char *buf,
+		     const size_t slen,
+		     struct hv *flags)
+{
+#ifdef EXTATTR_MACOSX
+  return macosx_listxattrns(path, buf, slen, flags);
+#elif defined(EXTATTR_BSD)
+  return bsd_listxattrns(path, buf, slen, flags);
+#elif defined(EXTATTR_SOLARIS)
+  return solaris_listxattrns(path, buf, slen, flags);
+#else
+  return linux_listxattrns(path, buf, slen, flags);
+#endif
+}
+
+static inline int
+portable_flistxattrns(const int fd,
+		      char *buf,
+		      const size_t slen,
+		      struct hv *flags)
+{
+#ifdef EXTATTR_MACOSX
+  return macosx_flistxattrns(fd, buf, slen, flags);
+#elif defined(EXTATTR_BSD)
+  return bsd_flistxattrns(fd, buf, slen, flags);
+#elif defined(EXTATTR_SOLARIS)
+  return solaris_flistxattrns(fd, buf, slen, flags);
+#else
+  return linux_flistxattrns(fd, buf, slen, flags);
+#endif
+}
+
 #endif /* EXTATTR_PORTABLE_H */

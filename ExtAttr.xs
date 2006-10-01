@@ -226,3 +226,65 @@ _listfattr (path, fd, flags = 0)
         }
 
         free(namebuf);
+
+void
+_listfattrns (path, fd, flags = 0)
+        const char *path
+        int fd
+        HV * flags
+    PREINIT:
+        ssize_t size, ret;
+        char *namebuf = NULL;
+        char *nameptr;
+
+    PPCODE:
+        if(fd == -1)
+            size = portable_listxattrns(path, NULL, 0, flags);
+        else
+            size = portable_flistxattrns(fd, NULL, 0, flags);
+
+        if (size == -1)
+        {
+            XSRETURN_UNDEF;
+        } else if (size == 0)
+        {
+            XSRETURN_EMPTY;
+        }
+
+        namebuf = malloc(size);
+
+        if (fd == -1)
+            ret = portable_listxattrns(path, namebuf, size, flags);
+        else
+            ret = portable_flistxattrns(fd, namebuf, size, flags);
+
+        // There could be a race condition here, if someone adds a new
+        // attribute between the two listxattr calls. However it just means we
+        // might return ERANGE.
+
+        if (ret == -1)
+        {
+            free(namebuf);
+            XSRETURN_UNDEF;
+        } else if (ret == 0)
+        {
+            free(namebuf);
+            XSRETURN_EMPTY;
+        }
+
+        nameptr = namebuf;
+
+        while(nameptr < namebuf + ret)
+        {
+          char *endptr = nameptr;
+          while(*endptr++ != '\0');
+
+          // endptr will now point one past the end..
+
+          XPUSHs(sv_2mortal(newSVpvn(nameptr, endptr - nameptr - 1)));
+
+          // nameptr could now point past the end of namebuf
+          nameptr = endptr;
+        }
+
+        free(namebuf);

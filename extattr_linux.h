@@ -49,4 +49,14 @@ ssize_t linux_flistxattr (const int fd,
                           const size_t buflen,
                           struct hv *flags);
 
+ssize_t linux_listxattrns (const char *path,
+			   char *buf,
+			   const size_t buflen,
+			   struct hv *flags);
+
+ssize_t linux_flistxattrns (const int fd,
+			    char *buf,
+			    const size_t buflen,
+			    struct hv *flags);
+
 #endif /* EXTATTR_LINUX_H */
