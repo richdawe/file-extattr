@@ -6,6 +6,10 @@
 
 #include "flags.h"
 
+/*
+ * Convert the 'create' and/or 'replace' attributes into a value,
+ * so they can be mapped to O_CREATE/O_EXCL values by the caller.
+ */
 File_ExtAttr_setflags_t
 File_ExtAttr_flags2setflags (struct hv *flags)
 {
@@ -25,4 +29,40 @@ File_ExtAttr_flags2setflags (struct hv *flags)
     ret = SvIV(*psv_ns) ? SET_REPLACE : SET_CREATEIFNEEDED;
 
   return ret;
+}
+
+/*
+ * For platforms that don't support namespacing attributes
+ * (Mac OS X, Solaris), provide some smart default behaviour
+ * for the 'namespace' attribute for cross-platform compatibility.
+ */
+int
+File_ExtAttr_valid_default_namespace (struct hv *flags)
+{
+  const size_t NAMESPACE_KEYLEN = strlen(NAMESPACE_KEY);
+  SV **psv_ns;
+  int ok = 1; /* Default is valid */
+
+  if (flags && (psv_ns = hv_fetch(flags, NAMESPACE_KEY, NAMESPACE_KEYLEN, 0)))
+  {
+    /*
+     * Undefined => default. Otherwise treat "user" as if it were valid,
+     * for compatibility with the default on Linux and *BSD.
+     * An empty namespace (i.e.: zero-length) is not the same as the default.
+     */
+    if (SvOK(*psv_ns))
+    {
+      char *s;
+      STRLEN len = 0;
+
+      s = SvPV(*psv_ns, len);
+
+      if (len)
+	ok = (memcmp("user", s, len) == 0);
+      else
+	ok = 0;
+    }
+  }
+
+  return ok;
 }

@@ -17,38 +17,6 @@
 static const mode_t ATTRMODE = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP;
 
 static int
-valid_namespace (struct hv *flags)
-{
-  const size_t NAMESPACE_KEYLEN = strlen(NAMESPACE_KEY);
-  SV **psv_ns;
-  char *ns = NULL;
-  int ok = 1; /* Default is valid */
-
-  if (flags && (psv_ns = hv_fetch(flags, NAMESPACE_KEY, NAMESPACE_KEYLEN, 0)))
-  {
-    /*
-     * Undefined => default. Otherwise treat "user" as if it were valid,
-     * for compatibility with the default on Linux and *BSD.
-     * An empty namespace (i.e.: zero-length) is not the same as the default.
-     */
-    if (SvOK(*psv_ns))
-    {
-      char *s;
-      STRLEN len = 0;
-
-      s = SvPV(*psv_ns, len);
-
-      if (len)
-	ok = (memcmp("user", s, len) == 0);
-      else
-	ok = 0;
-    }
-  }
-
-  return ok;
-}
-
-static int
 writexattr (const int attrfd,
 	    const char *attrvalue,
 	    const size_t slen)
@@ -212,7 +180,7 @@ solaris_setxattr (const char *path,
   case SET_REPLACE:        break;
   }
 
-  if (!valid_namespace(flags))
+  if (!File_ExtAttr_valid_default_namespace(flags))
   {
     errno = ENOATTR;
     ok = 0;
@@ -258,7 +226,7 @@ int solaris_fsetxattr (const int fd,
   case SET_REPLACE:        break;
   }
 
-  if (!valid_namespace(flags))
+  if (!File_ExtAttr_valid_default_namespace(flags))
   {
     errno = ENOATTR;
     ok = 0;
@@ -293,7 +261,7 @@ solaris_getxattr (const char *path,
   int attrfd = -1;
   int ok = 1;
 
-  if (!valid_namespace(flags))
+  if (!File_ExtAttr_valid_default_namespace(flags))
   {
     errno = ENOATTR;
     ok = 0;
@@ -315,7 +283,7 @@ solaris_fgetxattr (const int fd,
   int attrfd = -1;
   int ok = 1;
 
-  if (!valid_namespace(flags))
+  if (!File_ExtAttr_valid_default_namespace(flags))
   {
     errno = ENOATTR;
     ok = 0;
@@ -335,7 +303,7 @@ solaris_removexattr (const char *path,
   int attrdirfd = -1;
   int ok = 1;
 
-  if (!valid_namespace(flags))
+  if (!File_ExtAttr_valid_default_namespace(flags))
   {
     errno = ENOATTR;
     ok = 0;
@@ -355,7 +323,7 @@ solaris_fremovexattr (const int fd,
   int attrdirfd = -1;
   int ok = 1;
 
-  if (!valid_namespace(flags))
+  if (!File_ExtAttr_valid_default_namespace(flags))
   {
     errno = ENOATTR;
     ok = 0;
