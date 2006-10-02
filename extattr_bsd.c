@@ -295,19 +295,29 @@ bsd_listxattr (const char *path,
 	       const size_t buflen,
 	       struct hv *flags)
 {
+  int attrnamespace = -1;
+  int ok = 1;
   ssize_t ret;
 
-  /* XXX: Namespace? */
-  ret = extattr_list_file(path,
-			  EXTATTR_NAMESPACE_USER,
-			  /* To get the length on *BSD, pass NULL here. */
-			  buflen ? buf : NULL,
-			  buflen);
+  if (!valid_namespace(flags, &attrnamespace))
+  {
+    errno = ENOATTR;
+    ok = 0;
+  }
 
-  if (buflen && (ret > 0))
-    reformat_list(buf, ret);
+  if (ok)
+  {
+    ret = extattr_list_file(path,
+			    attrnamespace,
+			    /* To get the length on *BSD, pass NULL here. */
+			    buflen ? buf : NULL,
+			    buflen);
 
-  return ret;
+    if (buflen && (ret > 0))
+      reformat_list(buf, ret);
+  }
+
+  return ok ? ret : -1;
 }
 
 ssize_t
@@ -316,19 +326,29 @@ bsd_flistxattr (const int fd,
 		const size_t buflen,
 		struct hv *flags)
 {
+  int attrnamespace = -1;
+  int ok = 1;
   ssize_t ret;
 
-  /* XXX: Namespace? */
-  ret = extattr_list_fd(fd,
-			EXTATTR_NAMESPACE_USER,
-			/* To get the length on *BSD, pass NULL here. */
-			buflen ? buf : NULL,
-			buflen);
+  if (!valid_namespace(flags, &attrnamespace))
+  {
+    errno = ENOATTR;
+    ok = 0;
+  }
 
-  if (buflen && (ret > 0))
-    reformat_list(buf, ret);
+  if (ok)
+  {
+    ret = extattr_list_fd(fd,
+			  attrnamespace,
+			  /* To get the length on *BSD, pass NULL here. */
+			  buflen ? buf : NULL,
+			  buflen);
 
-  return ret;
+    if (buflen && (ret > 0))
+      reformat_list(buf, ret);
+  }
+
+  return ok ? ret : -1;
 }
 
 static ssize_t
