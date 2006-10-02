@@ -1,10 +1,14 @@
 #!perl -T -w
 
 use strict;
-use Test::More tests => 12;
+use Test::More tests => 20;
 use File::Temp qw(tempfile);
 use File::ExtAttr::Tie;
 use File::ExtAttr qw(getfattr);
+
+# Snaffle away the warnings for later analysis.
+my $warning;
+$SIG{'__WARN__'} = sub { $warning = $_[0] };
 
 my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
 my ($fh, $filename) = tempfile( DIR => $TESTDIR );
@@ -14,7 +18,7 @@ close $fh || die "can't close $filename $!";
 my %extattr;
 my @ks;
 
-tie %extattr, 'File::ExtAttr::Tie', $filename; # ok()?
+tie %extattr, 'File::ExtAttr::Tie', $filename, { namespace => 'nonuser' }; # ok()?
 
 # Check there are no user extattrs.
 @ks = keys(%extattr);
@@ -30,14 +34,17 @@ foreach $k (sort(keys(%test_attrs)))
 
     # Check that creation works.
     $extattr{$k} = $v;
-    is(getfattr($filename, "$k"), $v);
+    is ($warning =~ /(Operation not supported|No such file or directory|Attribute not found)/, 1);
+    is(getfattr($filename, "$k"), undef);
 
     # Check that updating works.
     $extattr{$k} = "$v$v";
-    is(getfattr($filename, "$k"), "$v$v");
+    is ($warning =~ /(Operation not supported|No such file or directory|Attribute not found)/, 1);
+    is(getfattr($filename, "$k"), undef);
 
     $extattr{$k} = $v;
-    is(getfattr($filename, "$k"), $v);
+    is ($warning =~ /(Operation not supported|No such file or directory|Attribute not found)/, 1);
+    is(getfattr($filename, "$k"), undef);
 
     # Check that deletion works.
     delete $extattr{$k};
@@ -52,12 +59,13 @@ foreach $k (sort(keys(%test_attrs)))
 
     # Check that creation works.
     $extattr{$k} = $v;
-    is(getfattr($filename, "$k"), $v);
+    is ($warning =~ /(Operation not supported|No such file or directory|Attribute not found)/, 1);
+    is(getfattr($filename, "$k"), undef);
 }
 
 # Check there are only our extattrs.
 @ks = keys(%extattr);
-ok(scalar(@ks) == scalar(keys(%test_attrs)));
+ok(scalar(@ks) == 0);
 print '# '.join(' ', @ks)."\n";
 
 END {unlink $filename if $filename};

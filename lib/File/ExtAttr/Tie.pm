@@ -9,7 +9,9 @@ File::ExtAttr::Tie - Tie interface to extended attributes of files
   use File::ExtAttr::Tie;
   use Data::Dumper;
 
-  tie %a, "File::ExtAttr::Tie", "/Applications (Mac  OS 9)/Sherlock 2";
+  tie %a,
+    "File::ExtAttr::Tie", "/Applications (Mac  OS 9)/Sherlock 2",
+    { namespace => 'user' };
   print Dumper \%a;
 
 produces:
@@ -29,6 +31,19 @@ modifies/removes the extended attribute.
 Internally this module uses the File::ExtAttr module. So it has
 the same restrictions as that module in terms of OS support.
 
+=head1 METHODS
+
+=over 4
+
+=item tie "File::ExtAttr::Tie", $filename, [\%flags]
+
+The flags are the same optional flags as in File::ExtAttr.  Any flags
+given here will be passed to all operations on the tied hash.
+Only the C<namespace> flag makes sense. The hash will be tied
+to the default namespace, if no flags are given.
+
+=back
+
 =cut
 
 use strict;
@@ -38,24 +53,26 @@ use File::ExtAttr qw(:all);
 our $VERSION = '0.01';
 
 sub TIEHASH {
-  my($class, $file) = @_;
-  return bless { file => $file }, ref $class || $class;
+  my($class, $file, $flags) = @_;
+  my $self = bless { file => $file }, ref $class || $class;
+  $self->{flags} = defined($flags) ? $flags : {};
+  return $self;
 }
 
 sub STORE {
   my($self, $name, $value) = @_;
-  return undef unless setfattr($self->{file}, $name, $value);
+  return undef unless setfattr($self->{file}, $name, $value, $self->{flags});
   $value;
 }
 
 sub FETCH {
   my($self, $name) = @_;
-  return getfattr($self->{file}, $name);
+  return getfattr($self->{file}, $name, $self->{flags});
 }
 
 sub FIRSTKEY {
   my($self) = @_;
-  $self->{each_list} = [listfattr($self->{file})];
+  $self->{each_list} = [listfattr($self->{file}, $self->{flags})];
   shift @{$self->{each_list}};
 }
 
@@ -66,20 +83,21 @@ sub NEXTKEY {
 
 sub EXISTS {
   my($self, $name) = @_;
-  return getfattr($self->{file}, $name) ne undef;
+  return getfattr($self->{file}, $name, $self->{flags}) ne undef;
 }
 
 sub DELETE {
   my($self, $name) = @_;
-  my $value = getfattr($self->{file}, $name);
-  return $value if delfattr($self->{file}, $name);
+  # XXX: Race condition
+  my $value = getfattr($self->{file}, $name, $self->{flags});
+  return $value if delfattr($self->{file}, $name, $self->{flags});
   undef;
 }
 
 sub CLEAR {
   my($self) = @_;
   for(listfattr($self->{file})) {
-    delfattr($self->{file}, $_);
+    delfattr($self->{file}, $_, $self->{flags});
   }
 }
 

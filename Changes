@@ -1,12 +1,19 @@
 Revision history for Perl extension File::ExtAttr.
 
 1.00 2006-08-28
+
     - (richdawe) Add support for Solaris 10.
+
     - (richdawe) Add support for File::ExtAttr::Tie on *BSD.
+
     - (richdawe) API change: Namespace and the create/replace flag
-                 are now passed via a hash. This breaks API compatibility.
-                 There should be no further API changes.
-                 NOTE: This has not been tested on Mac OS X.
+                 are now passed via a hash. This breaks API compatibility
+                 for both File::ExtAttr and File::ExtAttr::Tie.
+
+                 One API change remains: using exceptions rather
+                 than warnings to report errors.
+
+    NOTE: This relase has not been built or tested on Mac OS X.
 
 0.05 2006-05-27
     - (richdawe) Add support for FreeBSD 6.0. This may also work
