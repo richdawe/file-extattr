@@ -49,4 +49,14 @@ ssize_t bsd_flistxattr (const int fd,
 			const size_t buflen,
 			struct hv *flags);
 
+ssize_t bsd_listxattrns (const char *path,
+			 char *buf,
+			 const size_t buflen,
+			 struct hv *flags);
+
+ssize_t bsd_flistxattrns (const int fd,
+			  char *buf,
+			  const size_t buflen,
+			  struct hv *flags);
+
 #endif /* EXTATTR_BSD_H */

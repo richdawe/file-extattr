@@ -331,4 +331,114 @@ bsd_flistxattr (const int fd,
   return ret;
 }
 
+static ssize_t
+listxattrns (char *buf, const size_t buflen,
+	     const int iHasUser, const int iHasSystem)
+{
+  size_t len = 0;
+  int ret;
+
+  if (iHasUser)
+    len += sizeof(NAMESPACE_USER);
+  if (iHasSystem)
+    len += sizeof(NAMESPACE_SYSTEM);
+
+  if (buflen >= len)
+  {
+    char *p = buf;
+
+    if (iHasUser)
+    {
+      memcpy(p, NAMESPACE_USER, sizeof(NAMESPACE_USER));
+      p += sizeof(NAMESPACE_USER);
+    }
+    if (iHasSystem)
+    {
+      memcpy(p, NAMESPACE_SYSTEM, sizeof(NAMESPACE_SYSTEM));
+      p += sizeof(NAMESPACE_SYSTEM);
+    }
+
+    ret = len;
+  }
+  else if (buflen == 0)
+  {
+    ret = len;
+  }
+  else
+  {
+    errno = ERANGE;
+    ret = -1;
+  }
+
+  return ret;
+}
+
+ssize_t
+bsd_listxattrns (const char *path,
+		 char *buf,
+		 const size_t buflen,
+		 struct hv *flags)
+{
+  int iHasUser = 0;
+  int iHasSystem = 0;
+  ssize_t ret;
+
+  ret = extattr_list_file(path, EXTATTR_NAMESPACE_USER, NULL, 0);
+  if (ret > 0)
+    iHasUser = 1;
+
+  if (ret >= 0)
+  {
+    ret = extattr_list_file(path, EXTATTR_NAMESPACE_SYSTEM, NULL, 0);
+    if (ret > 0)
+      iHasSystem = 1;
+
+    /*
+     * XXX: How do we cope with EPERM? Throw an exception.
+     * For now ignore it, although this could cause problems.
+     */
+    if (ret == -1 && errno == EPERM)
+      ret = 0;
+  }
+
+  if (ret >= 0)
+    ret = listxattrns(buf, buflen, iHasUser, iHasSystem);
+
+  return ret;
+}
+
+ssize_t
+bsd_flistxattrns (const int fd,
+		  char *buf,
+		  const size_t buflen,
+		  struct hv *flags)
+{
+  int iHasUser = 0;
+  int iHasSystem = 0;
+  ssize_t ret;
+
+  ret = extattr_list_fd(fd, EXTATTR_NAMESPACE_USER, NULL, 0);
+  if (ret > 0)
+    iHasUser = 1;
+
+  if (ret >= 0)
+  {
+    ret = extattr_list_fd(fd, EXTATTR_NAMESPACE_SYSTEM, NULL, 0);
+    if (ret > 0)
+      iHasSystem = 1;
+
+    /*
+     * XXX: How do we cope with EPERM? Throw an exception.
+     * For now ignore it, although this could cause problems.
+     */
+    if (ret == -1 && errno == EPERM)
+      ret = 0;
+  }
+
+  if (ret >= 0)
+    ret = listxattrns(buf, buflen, iHasUser, iHasSystem);
+
+  return ret;
+}
+
 #endif /* EXTATTR_BSD */
