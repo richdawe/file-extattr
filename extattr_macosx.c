@@ -166,8 +166,19 @@ macosx_listxattr (const char *path,
 		  const size_t buflen,
 		  struct hv *flags)
 {
-  /* FIXME */
-  return listxattr(path, buf, buflen, 0 /* XXX: flags? */);
+  int ok = 1;
+  int ret = -1;
+
+  if (!File_ExtAttr_valid_default_namespace(flags))
+  {
+    errno = ENOATTR;
+    ok = 0;
+  }
+
+  if (ok)
+    ret = listxattr(path, buf, buflen, 0 /* XXX: flags? */);
+
+  return ok ? ret : -1;
 }
 
 ssize_t
@@ -176,8 +187,19 @@ macosx_flistxattr (const int fd,
 		   const size_t buflen,
 		   struct hv *flags)
 {
-  /* FIXME */
-  return flistxattr(fd, buf, buflen, 0 /* XXX: flags? */);
+  int ok = 1;
+  int ret = -1;
+
+  if (!File_ExtAttr_valid_default_namespace(flags))
+  {
+    errno = ENOATTR;
+    ok = 0;
+  }
+
+  if (ok)
+    ret = flistxattr(fd, buf, buflen, 0 /* XXX: flags? */);
+
+  return ok ? ret : -1;
 }
 
 ssize_t
