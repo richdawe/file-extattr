@@ -73,21 +73,21 @@ static char *
 qualify_attrname (const char *attrname, struct hv *flags)
 {
   char *res = NULL;
-  char *ns;
+  char *pNS;
   size_t reslen;
 
-  ns = flags2namespace(flags);
-  if (ns)
+  pNS = flags2namespace(flags);
+  if (pNS)
   {
-    reslen = strlen(ns) + strlen(attrname) + 2; /* ns + "." + attrname + nul */
+    reslen = strlen(pNS) + strlen(attrname) + 2; /* pNS + "." + attrname + nul */
     res = malloc(reslen);
   }
 
   if (res)
-    snprintf(res, reslen, "%s.%s", ns, attrname);
+    snprintf(res, reslen, "%s.%s", pNS, attrname);
 
-  if (ns)
-    free(ns);
+  if (pNS)
+    free(pNS);
 
   return res;
 }
@@ -260,47 +260,10 @@ linux_fremovexattr (const int fd,
   return ret;
 }
 
-ssize_t
-linux_listxattr (const char *path,
-                 char *buf,
-                 const size_t buflen,
-                 struct hv *flags)
-{
-#if 0
-  /* XXX: We need some kind of hash returned here: { namespace => attrname } */
-  int ret;
-  char *q;
-
-  /* XXX: Other flags? */
-  q = qualify_attrname(attrname, flags);
-  if (q)
-  {
-    ret = listxattr(path, buf, buflen);
-    free(q);
-  }
-  else
-  {
-    ret = -1;
-    errno = ENOMEM;
-  }
-
-  return ret;
-#else
-  return listxattr(path, buf, buflen);
-#endif
-}
-
-ssize_t
-linux_flistxattr (const int fd,
-                  char *buf,
-                  const size_t buflen,
-                  struct hv *flags)
-{
-  return flistxattr(fd, buf, buflen);
-}
-
 static ssize_t
-attrlist2nslist (char *sbuf, const size_t slen, char *buf, const size_t buflen)
+attrlist2list (char *sbuf, const size_t slen,
+               char *buf, const size_t buflen,
+               const int iWantNames, const char *pWantNS)
 {
   ssize_t sbuiltlen = 0;
   ssize_t spos = 0;
@@ -308,30 +271,47 @@ attrlist2nslist (char *sbuf, const size_t slen, char *buf, const size_t buflen)
 
   for (spos = 0; (spos < slen); )
   {
-    char *pns, *pval;
+    char *pNS, *pname, *psrc;
 
     /* Get the namespace. */
-    pns = &sbuf[spos];
-    pval = strchr(pns, '.');
-    if (!pval)
+    pNS = &sbuf[spos];
+    pname = strchr(pNS, '.');
+    if (!pname)
       break;
 
     /* Point spos at the next attribute. */
-    spos += strlen(pval) + 1;
+    spos += strlen(pNS) + 1;
 
-    /* Check we haven't already seen this namespace. */
-    *pval = '\0';
-    ++pval;
-    if (memstr(sbuf, pns, sbuiltlen) != NULL)
-      continue;
+    *pname = '\0';
+    ++pname;
+
+    if (iWantNames)
+    {
+      psrc = pname;
+
+      /* Name list wanted. Check this is in the right namespace. */
+      if (strcmp(pNS, pWantNS) != 0)
+        continue;
+    }
+    else
+    {
+      psrc = pNS;
+
+      /*
+       * Namespace list wanted. Check we haven't already seen
+       * this namespace.
+       */
+      if (memstr(sbuf, pNS, sbuiltlen) != NULL)
+        continue;
+    }
 
     /*
      * We build the results in sbuf. So sbuf will contain the list
      * returned by listxattr and the list of namespaces.
      * We shift the namespaces from the list to the start of the buffer.
      */
-    memmove(&sbuf[sbuiltlen], pns, strlen(pns) + 1 /* nul */);
-    sbuiltlen += strlen(pns) + 1;
+    memmove(&sbuf[sbuiltlen], psrc, strlen(psrc) + 1 /* nul */);
+    sbuiltlen += strlen(psrc) + 1;
   }
 
   if (buflen == 0)
@@ -353,7 +333,119 @@ attrlist2nslist (char *sbuf, const size_t slen, char *buf, const size_t buflen)
   return ret;
 }
 
+/* XXX: More common code below */
 /* XXX: Just return a Perl list? */
+
+ssize_t
+linux_listxattr (const char *path,
+                 char *buf,
+                 const size_t buflen,
+                 struct hv *flags)
+{
+  char *pNS;
+  ssize_t ret = 0;
+
+  pNS = flags2namespace(flags);
+  if (!pNS)
+  {
+    ret = -1;
+    errno = ENOMEM;
+  }
+
+  /*
+   * Get a buffer of nul-delimited "namespace.attribute"s,
+   * then extract the attributes into buf.
+   */
+  if (ret == 0)
+  {
+    ssize_t slen;
+
+    slen = listxattr(path, buf, 0);
+    if (slen >= 0)
+    {
+      char *sbuf;
+   
+      sbuf = malloc(slen);
+      if (sbuf)
+        slen = listxattr(path, sbuf, slen);
+      else
+        ret = -1;
+
+      if (slen)
+        ret = attrlist2list(sbuf, slen, buf, buflen, 1, pNS);
+      else
+        ret = slen;
+
+      if (sbuf)
+        free(sbuf);
+    }
+    else
+    {
+      ret = slen;
+    }
+  }
+
+  if (pNS)
+    free(pNS);
+
+  return ret;
+}
+
+ssize_t
+linux_flistxattr (const int fd,
+                  char *buf,
+                  const size_t buflen,
+                  struct hv *flags)
+{
+  char *pNS;
+  ssize_t ret = 0;
+
+  pNS = flags2namespace(flags);
+  if (!pNS)
+  {
+    ret = -1;
+    errno = ENOMEM;
+  }
+
+  /*
+   * Get a buffer of nul-delimited "namespace.attribute"s,
+   * then extract the attributes into buf.
+   */
+  if (ret == 0)
+  {
+    ssize_t slen;
+
+    slen = flistxattr(fd, buf, 0);
+    if (slen >= 0)
+    {
+      char *sbuf;
+   
+      sbuf = malloc(slen);
+      if (sbuf)
+        slen = flistxattr(fd, sbuf, slen);
+      else
+        ret = -1;
+
+      if (slen)
+        ret = attrlist2list(sbuf, slen, buf, buflen, 1, pNS);
+      else
+        ret = slen;
+
+      if (sbuf)
+        free(sbuf);
+    }
+    else
+    {
+      ret = slen;
+    }
+  }
+
+  if (pNS)
+    free(pNS);
+
+  return ret;
+}
+
 ssize_t
 linux_listxattrns (const char *path,
 		   char *buf,
@@ -379,7 +471,7 @@ linux_listxattrns (const char *path,
       ret = -1;
 
     if (slen)
-      ret = attrlist2nslist(sbuf, slen, buf, buflen);
+      ret = attrlist2list(sbuf, slen, buf, buflen, 0, NULL);
     else
       ret = slen;
 
@@ -419,7 +511,7 @@ linux_flistxattrns (const int fd,
       ret = -1;
 
     if (slen)
-      ret = attrlist2nslist(sbuf, slen, buf, buflen);
+      ret = attrlist2list(sbuf, slen, buf, buflen, 0, NULL);
     else
       ret = slen;
 
