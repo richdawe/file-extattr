@@ -43,6 +43,7 @@ print "# using $filename\n";
    #check user namespace exists now
    @ns = listfattrns($filename);
    is (grep(/^user$/, @ns), 1);
+   print '# '.join(' ', @ns)."\n";
 
    #read it back
    is (getfattr($filename, "$key", { namespace => 'user' }), $val);
@@ -80,6 +81,7 @@ print "# using file descriptor ".$fh->fileno()."\n";
    #check user namespace exists now
    @ns = listfattrns($fh);
    is (grep(/^user$/, @ns), 1);
+   print '# '.join(' ', @ns)."\n";
 
    #read it back
    is (getfattr($fh, "$key", { namespace => 'user' }), $val);
