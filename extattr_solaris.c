@@ -152,10 +152,84 @@ listclose (const int attrdirfd, char *buf, const size_t buflen)
     saved_errno = errno;
   if ((attrdirfd >= 0) && (close(attrdirfd) == -1) && !saved_errno)
     saved_errno = errno;
+  if (dirp && (closedir(dirp) == -1) && !saved_errno)
+    saved_errno = errno;
   if (saved_errno)
     errno = saved_errno;
 
   return ok ? len : -1;
+}
+
+static int
+hasattrclose (const int attrdirfd)
+{
+  int saved_errno = 0;
+  int ret = 0; /* Not by default */
+  DIR *dirp;
+
+  if (attrdirfd == -1)
+    ret = -1;
+
+  if (ret >= 0)
+    dirp = fdopendir(attrdirfd);
+
+  if (ret >= 0)
+  {
+    struct dirent *de;
+
+    while ((de = readdir(dirp)))
+    {
+      /* Ignore "." and ".." entries */
+      if (!strcmp(de->d_name, ".") || !strcmp(de->d_name, ".."))
+	continue;
+
+      /* Found a file */
+      ret = 1;
+      break;
+    }
+  }
+
+  if (ret == -1)
+    saved_errno = errno;
+  if ((attrdirfd >= 0) && (close(attrdirfd) == -1) && !saved_errno)
+    saved_errno = errno;
+  if (dirp && (closedir(dirp) == -1) && !saved_errno)
+    saved_errno = errno;
+  if (saved_errno)
+    errno = saved_errno;
+
+  return ret;
+}
+
+/*
+ * Solaris doesn't support namespacing attributes. So if there are
+ * any attributes, return the namespace "user".
+ */
+static
+ssize_t listxattrns (const int attrdirfd, char *buf, const size_t buflen)
+{
+  ssize_t ret = hasattrclose(attrdirfd);
+  if (ret > 0)
+  {
+    static const char NAMESPACE_USER[] = "user";
+
+    if (buflen >= sizeof(NAMESPACE_USER))
+    {
+      memcpy(buf, NAMESPACE_USER, sizeof(NAMESPACE_USER));
+      ret = sizeof(NAMESPACE_USER);
+    }
+    else if (buflen == 0)
+    {
+      ret = sizeof(NAMESPACE_USER);
+    }
+    else
+    {
+      ret = -1;
+      errno = ERANGE;
+    }
+  }
+
+  return ret;
 }
 
 int
@@ -353,6 +427,24 @@ solaris_flistxattr (const int fd,
 {
   int attrdirfd = openat(fd, ".", O_RDONLY|O_XATTR);
   return listclose(attrdirfd, buf, buflen);
+}
+
+ssize_t solaris_listxattrns (const char *path,
+			     char *buf,
+			     const size_t buflen,
+			     struct hv *flags)
+{
+  int attrdirfd = attropen(path, ".", O_RDONLY);
+  return listxattrns(attrdirfd, buf, buflen);
+}
+
+ssize_t solaris_flistxattrns (const int fd,
+			      char *buf,
+			      const size_t buflen,
+			      struct hv *flags)
+{
+  int attrdirfd = openat(fd, ".", O_RDONLY|O_XATTR);
+  return listxattrns(attrdirfd, buf, buflen);
 }
 
 #endif /* EXTATTR_SOLARIS */
