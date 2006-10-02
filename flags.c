@@ -58,11 +58,39 @@ File_ExtAttr_valid_default_namespace (struct hv *flags)
       s = SvPV(*psv_ns, len);
 
       if (len)
-	ok = (memcmp("user", s, len) == 0);
+	ok = (memcmp(NAMESPACE_USER, s, len) == 0);
       else
 	ok = 0;
     }
   }
 
   return ok;
+}
+
+/*
+ * Mac OS X and Solaris doesn't support namespacing attributes.
+ * So if there are any attributes, call this function,
+ * to return the namespace "user".
+ */
+ssize_t
+File_ExtAttr_default_listxattrns (char *buf, const size_t buflen)
+{
+  ssize_t ret = 0;
+
+  if (buflen >= sizeof(NAMESPACE_USER))
+  {
+    memcpy(buf, NAMESPACE_USER, sizeof(NAMESPACE_USER));
+    ret = sizeof(NAMESPACE_USER);
+  }
+  else if (buflen == 0)
+  {
+    ret = sizeof(NAMESPACE_USER);
+  }
+  else
+  {
+    ret = -1;
+    errno = ERANGE;
+  }
+
+  return ret;
 }

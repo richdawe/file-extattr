@@ -48,4 +48,14 @@ ssize_t macosx_flistxattr (const int fd,
 			   const size_t buflen,
 			   struct hv *flags);
 
+ssize_t macosx_listxattrns (const char *path,
+                            char *buf,
+                            const size_t buflen,
+                            struct hv *flags);
+
+ssize_t macosx_flistxattrns (const int fd,
+                             char *buf,
+                             const size_t buflen,
+                             struct hv *flags);
+
 #endif /* EXTATTR_MACOSX_H */

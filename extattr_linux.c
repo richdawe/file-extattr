@@ -43,7 +43,7 @@ memstr (void *buf, const char *str, const size_t buflen)
 static char *
 flags2namespace (struct hv *flags)
 {
-  static const char NAMESPACE_DEFAULT[] = "user";
+  const char *NAMESPACE_DEFAULT = NAMESPACE_USER;
   const size_t NAMESPACE_KEYLEN = strlen(NAMESPACE_KEY);
   SV **psv_ns;
   char *ns = NULL;

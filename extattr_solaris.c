@@ -201,37 +201,6 @@ hasattrclose (const int attrdirfd)
   return ret;
 }
 
-/*
- * Solaris doesn't support namespacing attributes. So if there are
- * any attributes, return the namespace "user".
- */
-static
-ssize_t listxattrns (const int attrdirfd, char *buf, const size_t buflen)
-{
-  ssize_t ret = hasattrclose(attrdirfd);
-  if (ret > 0)
-  {
-    static const char NAMESPACE_USER[] = "user";
-
-    if (buflen >= sizeof(NAMESPACE_USER))
-    {
-      memcpy(buf, NAMESPACE_USER, sizeof(NAMESPACE_USER));
-      ret = sizeof(NAMESPACE_USER);
-    }
-    else if (buflen == 0)
-    {
-      ret = sizeof(NAMESPACE_USER);
-    }
-    else
-    {
-      ret = -1;
-      errno = ERANGE;
-    }
-  }
-
-  return ret;
-}
-
 int
 solaris_setxattr (const char *path,
 		  const char *attrname,
@@ -434,8 +403,15 @@ ssize_t solaris_listxattrns (const char *path,
 			     const size_t buflen,
 			     struct hv *flags)
 {
-  int attrdirfd = attropen(path, ".", O_RDONLY);
-  return listxattrns(attrdirfd, buf, buflen);
+  int attrdirfd;
+  ssize_t ret;
+
+  attrdirfd = attropen(path, ".", O_RDONLY);
+  ret = hasattrclose(attrdirfd);
+  if (ret > 0)
+    ret = File_ExtAttr_default_listxattrns(buf, buflen);
+
+  return ret;
 }
 
 ssize_t solaris_flistxattrns (const int fd,
@@ -443,8 +419,15 @@ ssize_t solaris_flistxattrns (const int fd,
 			      const size_t buflen,
 			      struct hv *flags)
 {
-  int attrdirfd = openat(fd, ".", O_RDONLY|O_XATTR);
-  return listxattrns(attrdirfd, buf, buflen);
+  int attrdirfd;
+  ssize_t ret;
+
+  attrdirfd = openat(fd, ".", O_RDONLY|O_XATTR);
+  ret = hasattrclose(attrdirfd);
+  if (ret > 0)
+    ret = File_ExtAttr_default_listxattrns(buf, buflen);
+
+  return ret;
 }
 
 #endif /* EXTATTR_SOLARIS */

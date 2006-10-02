@@ -180,4 +180,32 @@ macosx_flistxattr (const int fd,
   return flistxattr(fd, buf, buflen, 0 /* XXX: flags? */);
 }
 
+ssize_t
+macosx_listxattrns (const char *path,
+                    char *buf,
+                    const size_t buflen,
+                    struct hv *flags)
+{
+  ssize_t ret = listxattr(path, NULL, 0, 0 /* XXX: flags? */);
+
+  if (ret > 0)
+    ret = File_ExtAttr_default_listxattrns(buf, buflen);
+
+  return ret;
+}
+
+ssize_t
+macosx_flistxattrns (const int fd,
+                     char *buf,
+                     const size_t buflen,
+                     struct hv *flags)
+{
+  ssize_t ret = flistxattr(fd, NULL, 0, 0 /* XXX: flags? */);
+
+  if (ret > 0)
+    ret = File_ExtAttr_default_listxattrns(buf, buflen);
+
+  return ret;
+}
+
 #endif /* EXTATTR_MACOSX */

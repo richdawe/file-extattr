@@ -10,9 +10,6 @@
 
 #include "flags.h"
 
-static const char NAMESPACE_USER[] = "user";
-static const char NAMESPACE_SYSTEM[] = "system";
-
 static int
 valid_namespace (struct hv *flags, int *pattrnamespace)
 {
