@@ -271,7 +271,9 @@ attrlist2list (char *sbuf, const size_t slen,
 
   for (spos = 0; (spos < slen); )
   {
-    char *pNS, *pname, *psrc;
+    const char *psrc;
+    char *pNS, *pname;
+    int src_len;
 
     /* Get the namespace. */
     pNS = &sbuf[spos];
@@ -310,8 +312,9 @@ attrlist2list (char *sbuf, const size_t slen,
      * returned by listxattr and the list of namespaces.
      * We shift the namespaces from the list to the start of the buffer.
      */
-    memmove(&sbuf[sbuiltlen], psrc, strlen(psrc) + 1 /* nul */);
-    sbuiltlen += strlen(psrc) + 1;
+    src_len = strlen(psrc) + 1;
+    memmove(&sbuf[sbuiltlen], psrc, src_len);
+    sbuiltlen += src_len;
   }
 
   if (buflen == 0)

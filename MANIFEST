@@ -30,6 +30,7 @@ t/14optional.t
 t/15create.t
 t/16replace.t
 t/17createreplace.t
+t/18list.t
 t/20tie-basic.t
 t/22tie-nonuser.t
 t/30nsbasic.t
