@@ -30,6 +30,23 @@ File::ExtAttr - Perl extension for accessing extended attributes of files
       delfattr($fh, 'colour');
   }
 
+  # List attributes in the default namespace.
+  print "Attributes of bar.txt:\n";
+  foreach (listfattr($fh))
+  {
+    print "\t$_\n";
+  }
+
+  # Examine attributes in a namespace-aware manner.
+  my @namespaces = listfattrns($fh);
+
+  foreach my $ns (@namespaces)
+  {
+    print "Attributes in namespace '$ns': ";
+    my @attrs = listfattr($fh, { namespace => $ns });
+    print join(',', @attrs)."\n";
+  }
+
 =head1 DESCRIPTION
 
 File::ExtAttr is a Perl module providing access to the extended attributes
@@ -176,7 +193,7 @@ sub _is_fh
 
 Return the value of the attribute named C<$attrname>
 for the file named C<$filename> or referenced by the open filehandle
-C<$filehandle> (which should be an IO::Handle).
+C<$filehandle> (which should be an IO::Handle or subclass thereof).
 
 If no attribute is found, returns C<undef>. Otherwise gives a warning.
 
@@ -197,7 +214,7 @@ sub getfattr
 
 Set the attribute named C<$attrname> with the value C<$attrval>
 for the file named C<$filename> or referenced by the open filehandle
-C<$filehandle> (which should be an IO::Handle).
+C<$filehandle> (which should be an IO::Handle or subclass thereof).
 
 C<%flags> allows control of whether the attribute should be created
 or should replace an existing attribute\'s value. If the key C<create>
@@ -231,7 +248,7 @@ sub setfattr
 
 Delete the attribute named C<$attrname> for the file named C<$filename>
 or referenced by the open filehandle C<$filehandle>
-(which should be an IO::Handle).
+(which should be an IO::Handle or subclass thereof).
 
 Returns true on success, otherwise false and a warning is issued.
 
@@ -250,8 +267,9 @@ sub delfattr
 
 =item listfattr([$filename | $filehandle], [\%flags])
 
-Return the attributes on the file named C<$filename> or referenced by the open
-filehandle C<$filehandle> (which should be an IO::Handle).
+Return an array of the attributes on the file named C<$filename>
+or referenced by the open filehandle C<$filehandle> (which should be
+an IO::Handle or subclass thereof).
 
 Returns undef on failure and $! will be set.
 
@@ -270,9 +288,9 @@ sub listfattr
 
 =item listfattrns([$filename | $filehandle], [\%flags])
 
-Return a list containing the namespaces of attributes on the file named
+Return an array containing the namespaces of attributes on the file named
 C<$filename> or referenced by the open filehandle C<$filehandle>
-(which should be an IO::Handle).
+(which should be an IO::Handle or subclass thereof).
 
 Returns undef on failure and $! will be set.
 
