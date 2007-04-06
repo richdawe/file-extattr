@@ -1,5 +1,13 @@
 Revision history for Perl extension File::ExtAttr.
 
+1.02 2007-04-06
+
+    - (richdawe) Fix listfattr() so it works on Linux. Thanks to rafl
+                 and Jonathan Rockway for the patch!
+    - (richdawe) Add test cases for listfattr().
+    - (richdawe) Fix warning in listfattr(), listfattrns()
+                 when operating on a file handle.
+
 1.01 2006-10-02
 
     - (richdawe) Fix brown paper bag bugs in MANIFEST that broke the build.
