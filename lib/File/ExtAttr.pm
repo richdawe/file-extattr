@@ -137,7 +137,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw(
 );
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 #this is used by getxattr(), needs documentation
 $File::ExtAttr::MAX_INITIAL_VALUELEN = 255;
@@ -200,7 +200,7 @@ for the file named C<$filename> or referenced by the open filehandle
 C<$filehandle> (which should be an IO::Handle).
 
 C<%flags> allows control of whether the attribute should be created
-or should replace an existing attribute's value. If the key C<create>
+or should replace an existing attribute\'s value. If the key C<create>
 is true, setfattr will fail if the attribute already exists. If the key
 C<replace> is true, setfattr will fail if the attribute
 does not already exist. If neither is specified, then the attribute
@@ -263,7 +263,7 @@ sub listfattr
 
     return _is_fh($file)
         # File handle
-        ? _listfattr(undef, $file->fileno(), @_)
+        ? _listfattr('', $file->fileno(), @_)
         # Filename
         : _listfattr($file, -1, @_);
 }
@@ -284,7 +284,7 @@ sub listfattrns
 
     return _is_fh($file)
         # File handle
-        ? _listfattrns(undef, $file->fileno(), @_)
+        ? _listfattrns('', $file->fileno(), @_)
         # Filename
         : _listfattrns($file, -1, @_);
 }
@@ -369,7 +369,7 @@ Richard Dawe, E<lt>rich@phekda.gotadsl.co.ukE<gt>
 
 Copyright (C) 2005 by Kevin M. Goess
 
-Copyright (C) 2005, 2006 by Richard Dawe
+Copyright (C) 2005, 2006, 2007 by Richard Dawe
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.5 or,
