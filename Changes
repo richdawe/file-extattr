@@ -30,6 +30,9 @@ Revision history for Perl extension File::ExtAttr.
                  One API change remains: using exceptions rather
                  than warnings to report errors.
 
+    - (richdawe) Fix RT #21214: "ISO C90 forbids mixed declarations
+                 and code"
+
     NOTE: This relase has not been built or tested on Mac OS X.
 
 0.05 2006-05-27
