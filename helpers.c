@@ -20,7 +20,7 @@ my_strerror_r (const int the_errno, char *buf, const size_t buflen)
   return strerror_r(the_errno, buf, buflen);
 }
 
-#else
+#else /* !__GLIBC__ */
 
 static inline char *
 my_strerror_r (const int the_errno, char *buf, const size_t buflen)
@@ -31,9 +31,9 @@ my_strerror_r (const int the_errno, char *buf, const size_t buflen)
   return buf;
 }
 
-#endif
+#endif /* __GLIBC__ */
 
-#else /* __GLIBC__ */
+#else /* !HAS_STRERROR_R */
 
 /*
  * No strerror_r(), so impersonate it using strerror(). This may not be
