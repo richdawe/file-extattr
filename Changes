@@ -1,5 +1,10 @@
 Revision history for Perl extension File::ExtAttr.
 
+1.03 2007-04-27
+
+    - (richdawe) Fix RT #26542: "Tests fail with taint-mode
+                 and ATTR_TEST_DIR set"; also document ATTR_TEST_DIR.
+
 1.02 2007-04-06
 
     - (richdawe) Fix listfattr() so it works on Linux. Thanks to rafl
