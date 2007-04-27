@@ -30,6 +30,15 @@ To install this module type the following:
 
 Installation requires a C compiler.
 
+"make test" will fail if the filesystem you are building and running
+the test suite does not support extended attributes. You can use
+the "ATTR_TEST_DIR" environment variable to make the test suite
+use a different file system, e.g.:
+
+  mkdir -p /path/to/somewhere/with/extattr/test-dir
+  export ATTR_TEST_DIR=/path/to/somewhere/with/extattr/test-dir
+  make test
+
 DEPENDENCIES
 
 This module requires these other modules:

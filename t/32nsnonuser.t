@@ -1,4 +1,4 @@
-#!perl -T
+#!perl -w
 # -*-perl-*-
 
 # Test that creating non-"user."-prefixed attributes fails.
