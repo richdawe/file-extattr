@@ -5,6 +5,9 @@ Revision history for Perl extension File::ExtAttr.
     - (richdawe) Fix RT #26542: "Tests fail with taint-mode
                  and ATTR_TEST_DIR set"; also document ATTR_TEST_DIR.
 
+    - (richdawe) Build fix for NetBSD, OpenBSD: Use strerror()
+                 if strerror_r() is not available.
+
 1.02 2007-04-06
 
     - (richdawe) Fix listfattr() so it works on Linux. Thanks to rafl

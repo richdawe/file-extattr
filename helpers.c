@@ -8,6 +8,8 @@
 
 #include "helpers.h"
 
+#ifdef HAS_STRERROR_R
+
 #ifdef __GLIBC__
 
 static inline char *
@@ -30,6 +32,25 @@ my_strerror_r (const int the_errno, char *buf, const size_t buflen)
 }
 
 #endif
+
+#else /* __GLIBC__ */
+
+/*
+ * No strerror_r(), so impersonate it using strerror(). This may not be
+ * thread-safe.
+ */
+static inline char *
+my_strerror_r (const int the_errno, char *buf, const size_t buflen)
+{
+  const char *errstr = strerror(the_errno);
+
+  strncpy(buf, errstr, buflen);
+  buf[buflen - 1] = '\0';
+
+  return buf;
+}
+
+#endif /* HAS_STRERROR_R */
 
 void
 setattr_warn (const char *funcname, const char *attrname, const int the_errno)
