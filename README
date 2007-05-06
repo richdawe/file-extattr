@@ -1,4 +1,4 @@
-File-ExtAttr version 1.03
+File-ExtAttr version 1.04
 =========================
 
 File::ExtAttr is a Perl module providing access to the extended attributes
@@ -10,7 +10,7 @@ But users can add their own key=value pairs.
 
 Extended attributes may not be supported by your operating system.
 This module is aimed at Linux, Unix or Unix-like operating systems
-(e.g.: Mac OS X, FreeBSD, NetBSD, OpenBSD).
+(e.g.: Mac OS X, FreeBSD, NetBSD).
 
 Extended attributes may also not be supported by your filesystem
 or require special options to be enabled for a particular filesystem
@@ -58,7 +58,7 @@ COPYRIGHT AND LICENCE
 
 Copyright (C) 2005 by Kevin M. Goess
 
-Copyright (C) 2005, 2006 by Richard Dawe
+Copyright (C) 2005, 2006, 2007 by Richard Dawe
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.5 or,
