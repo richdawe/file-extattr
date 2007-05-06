@@ -5,6 +5,11 @@ Revision history for Perl extension File::ExtAttr.
     - (richdawe) OpenBSD does not support extended attributes --
                  fail the build on OpenBSD; documentation updates.
 
+    - (richdawe) Really fix build for NetBSD 3.x. Update the test suite
+                 to skip tests on NetBSD 3.1 or earlier,
+                 since NetBSD 4.0 is the first version to actually have
+                 filesystem support for extended attributes.
+
 1.03 2007-04-27
 
     - (richdawe) Fix RT #26542: "Tests fail with taint-mode

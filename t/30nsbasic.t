@@ -8,7 +8,21 @@
 # change 'tests => 2' to 'tests => last_test_to_print';
 
 use strict;
-use Test::More tests => 12;
+use Test::More;
+
+BEGIN {
+  my $tlib = $0;
+  $tlib =~ s|/[^/]*$|/lib|;
+  push(@INC, $tlib);
+}
+use t::Support;
+
+if (t::Support::should_skip()) {
+  plan skip_all => 'Tests unsupported on this OS/filesystem';
+} else {
+  plan tests => 12;
+}
+
 use File::Temp qw(tempfile);
 use File::ExtAttr qw(setfattr getfattr delfattr listfattrns);
 use IO::File;

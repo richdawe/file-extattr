@@ -20,6 +20,7 @@ extattr_macosx.c
 extattr_os.h
 extattr_solaris.h
 extattr_solaris.c
+t/lib/t/Support.pm
 t/00load.t
 t/01distribution.t
 t/02load-all.t

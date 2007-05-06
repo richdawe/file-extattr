@@ -76,7 +76,9 @@ E.g.:
 
 =item FreeBSD 5.0 and later
 
-=item NetBSD 3.0 and later
+=item NetBSD 3.0 and later (builds)
+
+=item NetBSD 4.0 and later (for UFS filesystem with xattr support)
 
 =item Solaris 10 and later
 
@@ -390,9 +392,11 @@ L<http://www.freebsd.org/cgi/man.cgi?query=extattr&sektion=2&apropos=0&manpath=F
 =item NetBSD
 
 NetBSD >= 3.0 supports extended attributes, but you'll need to use
-NetBSD >= 4.0 to have a filesystem that supports them.
+NetBSD >= 4.0 to get UFS filesystem support for them.
 
 L<http://netbsd.gw.com/cgi-bin/man-cgi?extattr_get_file+2+NetBSD-current>
+
+L<http://www.netbsd.org/Changes/changes-4.0.html#ufs>
 
 =item Mac OS X
 

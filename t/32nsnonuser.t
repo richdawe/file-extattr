@@ -5,7 +5,21 @@
 # XXX: Probably Linux-specific
 
 use strict;
-use Test::More tests => 4;
+use Test::More;
+
+BEGIN {
+  my $tlib = $0;
+  $tlib =~ s|/[^/]*$|/lib|;
+  push(@INC, $tlib);
+}
+use t::Support;
+
+if (t::Support::should_skip()) {
+  plan skip_all => 'Tests unsupported on this OS/filesystem';
+} else {
+  plan tests => 4;
+}
+
 use File::Temp qw(tempfile);
 use File::ExtAttr qw(setfattr getfattr delfattr);
 

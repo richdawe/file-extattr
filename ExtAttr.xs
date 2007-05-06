@@ -87,10 +87,7 @@ _getfattr(path, attrname, flags = 0)
 
             //print warning and return undef
             }else{
-            char * errstr;
-                New(1, errstr, 1000, char);
-                warn("getxattr failed: %s",strerror_r(errno,errstr,1000)); 
-                Safefree(errstr);
+                setattr_warn("getxattr", attrname, errno);
                 XSRETURN_UNDEF;
             }
         }
@@ -128,10 +125,7 @@ _fgetfattr(fd, attrname, flags = 0)
 
             //print warning and return undef
             }else{
-            char * errstr;
-                New(1, errstr, 1000, char);
-                warn("fgetxattr failed: %s",strerror_r(errno,errstr,1000)); 
-                Safefree(errstr);
+                setattr_warn("fgetxattr", attrname, errno);
                 XSRETURN_UNDEF;
             }
         }
