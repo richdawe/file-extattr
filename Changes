@@ -1,5 +1,10 @@
 Revision history for Perl extension File::ExtAttr.
 
+1.04 2007-05-06
+
+    - (richdawe) OpenBSD does not support extended attributes --
+                 fail the build on OpenBSD; documentation updates.
+
 1.03 2007-04-27
 
     - (richdawe) Fix RT #26542: "Tests fail with taint-mode

@@ -26,6 +26,9 @@ if ($^O eq 'linux')
     }
 }
 
+# OpenBSD does not support extended attributes.
+die 'OpenBSD does not support extended attributes' if ($^O eq 'openbsd');
+
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
