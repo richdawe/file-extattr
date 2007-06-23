@@ -34,7 +34,11 @@ die 'OpenBSD does not support extended attributes' if ($^O eq 'openbsd');
 WriteMakefile(
     NAME              => 'File::ExtAttr',
     VERSION_FROM      => 'lib/File/ExtAttr.pm', # finds $VERSION
-    PREREQ_PM         => {}, # e.g., Module::Name => 1.1
+    PREREQ_PM         => {
+	# e.g., Module::Name => 1.1
+	Carp => 0,
+	Scalar::Util => 0
+    },
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/File/ExtAttr.pm', # retrieve abstract from module
        AUTHOR         => 'Kevin M. Goess <kgoess@ensenda.com>'
@@ -47,6 +51,9 @@ WriteMakefile(
 #    'MYEXTLIB' => 'mylib/libxattrlib$(LIB_EXT)',
 	# Un-comment this if you add C files to link with later:
     # OBJECT            => '$(O_FILES)', # link all the C files too
+
+    # Hand-roll META.yml and MANIFEST.
+    NO_META           => 1,
 );
 
 

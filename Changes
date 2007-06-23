@@ -1,5 +1,10 @@
 Revision history for Perl extension File::ExtAttr.
 
+1.05 2007-06-23
+
+    - (richdawe) Fix META.yml so that it's valid. Add a test using
+      		 Test::YAML::Meta to the test suite, to validate META.yml.
+
 1.04 2007-05-06
 
     - (richdawe) OpenBSD does not support extended attributes --
