@@ -19,12 +19,9 @@ Remove dependency on libattr on Linux - just define ENOATTR -> ENODATA?
 Unite somehow with File::Attributes (which is for file systems
 without xattrs)?
 
-Get it to build on NetBSD 3.0 - it doesn't have strerror_r, which we need.
-NetBSD 4.0 is the first NetBSD to support extattrs on disk, so maybe
-there's no point supporting 3.0?
-
-Document pre-reqs for test suite: Test::Distribution, Test::Pod::Coverage
-Include these in a .spec file that we can include with distro
+Document pre-reqs for test suite: Test::Distribution, Test::Pod::Coverage,
+Test::YAML::Meta. Include these in a .spec file that we can include
+with distro
 
 Disallow nuls in the attribute names. The list handling will break
 if we allow this. (Alternative is to make the portable listxattr follow
