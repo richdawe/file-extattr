@@ -1,9 +1,11 @@
 Revision history for Perl extension File::ExtAttr.
 
-1.05 2007-06-23
+1.05 2007-07-04
 
     - (richdawe) Fix META.yml so that it's valid. Add a test using
       		 Test::YAML::Meta to the test suite, to validate META.yml.
+
+    - (richdawe) Fix RT #27864: "Tests fail with nl_NL locale set".
 
 1.04 2007-05-06
 

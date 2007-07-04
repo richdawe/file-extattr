@@ -6,6 +6,7 @@
 
 use strict;
 use Test::More;
+use POSIX qw/setlocale LC_ALL/;
 
 BEGIN {
   my $tlib = $0;
@@ -22,6 +23,9 @@ if (t::Support::should_skip()) {
 
 use File::Temp qw(tempfile);
 use File::ExtAttr qw(setfattr getfattr delfattr);
+
+# Use the C locale, so all warnings are in the language we are expecting.
+setlocale(LC_ALL, 'C');
 
 # Snaffle away the warnings for later analysis.
 my $warning;
