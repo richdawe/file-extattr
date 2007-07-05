@@ -20,10 +20,11 @@ use t::Support;
 if (t::Support::should_skip()) {
   plan skip_all => 'Tests unsupported on this OS/filesystem';
 } else {
-  plan tests => 4;
+  plan tests => 6;
 }
 
 use File::Temp qw(tempfile);
+use File::Path;
 use File::ExtAttr qw(setfattr getfattr delfattr);
 use IO::File;
 
@@ -31,6 +32,13 @@ my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
 my ($fh, $filename) = tempfile( DIR => $TESTDIR );
 
 close $fh || die "can't close $filename $!";
+
+# Create a directory.
+my $dirname = "$filename.dir";
+eval { mkpath($dirname); };
+if ($@) {
+    warn "Couldn't create $dirname: $@";
+}
 
 #todo: try wierd characters in here?
 #     try unicode?
@@ -41,15 +49,17 @@ my $val = "ZZZadlf03948alsdjfaslfjaoweir12l34kealfkjalskdfas90d8fajdlfkj./.,f";
 #  Filename-based tests  #
 ##########################
 
-print "# using $filename\n";
+foreach ( $filename, $dirname ) {
+    print "# using $_\n";
 
-#create and replace it -- should fail
-undef $@;
-eval { setfattr($filename, "$key", $val, { create => 1, replace => 1 }); };
-isnt ($@, undef);
+    #create and replace it -- should fail
+    undef $@;
+    eval { setfattr($_, "$key", $val, { create => 1, replace => 1 }); };
+    isnt ($@, undef);
 
-#check that it's not been created
-is (getfattr($filename, "$key"), undef);
+    #check that it's not been created
+    is (getfattr($_, "$key"), undef);
+}
 
 ##########################
 # IO::Handle-based tests #
@@ -69,4 +79,7 @@ isnt ($@, undef);
 #check that it's not been created
 is (getfattr($fh, $key2), undef);
 
-END {unlink $filename if $filename};
+END {
+    unlink $filename if $filename;
+    rmdir $dirname if $dirname;
+};

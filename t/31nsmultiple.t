@@ -20,10 +20,11 @@ use t::Support;
 if (t::Support::should_skip()) {
   plan skip_all => 'Tests unsupported on this OS/filesystem';
 } else {
-  plan tests => 26;
+  plan tests => 40;
 }
 
 use File::Temp qw(tempfile);
+use File::Path;
 use File::ExtAttr qw(setfattr getfattr delfattr listfattrns);
 use IO::File;
 
@@ -31,6 +32,13 @@ my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
 my ($fh, $filename) = tempfile( DIR => $TESTDIR );
 
 close $fh || die "can't close $filename $!";
+
+# Create a directory.
+my $dirname = "$filename.dir";
+eval { mkpath($dirname); };
+if ($@) {
+    warn "Couldn't create $dirname: $@";
+}
 
 #todo: try wierd characters in here?
 #     try unicode?
@@ -46,52 +54,52 @@ my @ns;
 #  Filename-based tests  #
 ##########################
 
-print "# using $filename\n";
+foreach ( $filename, $dirname ) {
+    print "# using $_\n";
 
 #for (1..30000) { #checking memory leaks
 
    #will die if xattr stuff doesn't work at all
-   setfattr($filename, "$key", $val, { namespace => 'user' })
-     || die "setfattr failed on filename $filename: $!"; 
+   setfattr($_, "$key", $val, { namespace => 'user' })
+     || die "setfattr failed on filename $_: $!"; 
 
    #set it
-   is (setfattr($filename, "$key", $val, { namespace => 'user' }), 1);
+   is (setfattr($_, "$key", $val, { namespace => 'user' }), 1);
 
    #read it back
-   is (getfattr($filename, "$key", { namespace => 'user' }), $val);
+   is (getfattr($_, "$key", { namespace => 'user' }), $val);
 
    #set another
-   is (setfattr($filename, "$key2", $val, { namespace => 'user' }), 1);
+   is (setfattr($_, "$key2", $val, { namespace => 'user' }), 1);
 
    #read it back
-   is (getfattr($filename, "$key2", { namespace => 'user' }), $val);
+   is (getfattr($_, "$key2", { namespace => 'user' }), $val);
 
    #set yet another
-   is (setfattr($filename, "$key3", $val, { namespace => 'user' }), 1);
+   is (setfattr($_, "$key3", $val, { namespace => 'user' }), 1);
 
    #read it back
-   is (getfattr($filename, "$key3", { namespace => 'user' }), $val);
+   is (getfattr($_, "$key3", { namespace => 'user' }), $val);
 
    #check user namespace exists now
-   @ns = listfattrns($filename);
+   @ns = listfattrns($_);
    is (grep(/^user$/, @ns), 1);
 
    #delete them
-   ok (delfattr($filename, "$key", { namespace => 'user' }));
-   ok (delfattr($filename, "$key2", { namespace => 'user' }));
-   ok (delfattr($filename, "$key3", { namespace => 'user' }));
+   ok (delfattr($_, "$key", { namespace => 'user' }));
+   ok (delfattr($_, "$key2", { namespace => 'user' }));
+   ok (delfattr($_, "$key3", { namespace => 'user' }));
 
    #check that they're gone
-   is (getfattr($filename, "$key", { namespace => 'user' }), undef);
-   is (getfattr($filename, "$key2", { namespace => 'user' }), undef);
-   is (getfattr($filename, "$key3", { namespace => 'user' }), undef);
+   is (getfattr($_, "$key", { namespace => 'user' }), undef);
+   is (getfattr($_, "$key2", { namespace => 'user' }), undef);
+   is (getfattr($_, "$key3", { namespace => 'user' }), undef);
 
    #check user namespace doesn't exist now
-   @ns = listfattrns($filename);
+   @ns = listfattrns($_);
    is (grep(/^user$/, @ns), 0);
 #}
-#print STDERR "done\n";
-#<STDIN>;
+}
 
 ##########################
 # IO::Handle-based tests #
@@ -144,4 +152,7 @@ print "# using file descriptor ".$fh->fileno()."\n";
 #print STDERR "done\n";
 #<STDIN>;
 
-END {unlink $filename if $filename};
+END {
+    unlink $filename if $filename;
+    rmdir $dirname if $dirname;
+};

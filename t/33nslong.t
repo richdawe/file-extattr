@@ -23,16 +23,24 @@ use t::Support;
 if (t::Support::should_skip()) {
   plan skip_all => 'Tests unsupported on this OS/filesystem';
 } else {
-  plan tests => 16;
+  plan tests => 24;
 }
 
 use File::Temp qw(tempfile);
+use File::Path;
 use File::ExtAttr qw(setfattr getfattr delfattr);
 use IO::File;
 
 my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
 my ($fh, $filename) = tempfile( DIR => $TESTDIR );
 close $fh || die "can't close $filename $!";
+
+# Create a directory.
+my $dirname = "$filename.dir";
+eval { mkpath($dirname); };
+if ($@) {
+    warn "Couldn't create $dirname: $@";
+}
 
 #todo: try wierd characters in here?
 #     try unicode?
@@ -44,43 +52,43 @@ my $longval2 = 'A' x ($File::ExtAttr::MAX_INITIAL_VALUELEN + 11);
 #  Filename-based tests  #
 ##########################
 
-print "# using $filename\n";
+foreach ( $filename, $dirname ) {
+    print "# using $_\n";
 
 #for (1..30000) { #checking memory leaks
    #check a really big one, bigger than $File::ExtAttr::MAX_INITIAL_VALUELEN
    #Hmmm, 3991 is the biggest number that doesn't generate "no space left on device"
    #on my /var partition, and 920 is the biggest for my loopback partition.
    #What's up with that?
-   #setfattr($filename, "$key-2", ('x' x 3991)) || die "setfattr failed on $filename: $!"; 
-   setfattr($filename, "$key", $longval, { namespace => 'user' })
-      || die "setfattr failed on $filename: $!"; 
+   #setfattr($_, "$key-2", ('x' x 3991)) || die "setfattr failed on $_: $!"; 
+    setfattr($_, "$key", $longval, { namespace => 'user' })
+        || die "setfattr failed on $_: $!"; 
 
-   #set it
-   is (setfattr($filename, "$key", $longval, { namespace => 'user' }), 1);
+    #set it
+    is (setfattr($_, "$key", $longval, { namespace => 'user' }), 1);
 
-   #read it back
-   is (getfattr($filename, "$key", { namespace => 'user' }), $longval);
+    #read it back
+    is (getfattr($_, "$key", { namespace => 'user' }), $longval);
 
-   #delete it
-   ok (delfattr($filename, "$key", { namespace => 'user' }));
+    #delete it
+    ok (delfattr($_, "$key", { namespace => 'user' }));
 
-   #check that it's gone
-   is (getfattr($filename, "$key", { namespace => 'user' }), undef);
+    #check that it's gone
+    is (getfattr($_, "$key", { namespace => 'user' }), undef);
 
-   #set it
-   is (setfattr($filename, "$key", $longval2, { namespace => 'user' }), 1);
+    #set it
+    is (setfattr($_, "$key", $longval2, { namespace => 'user' }), 1);
 
-   #read it back
-   is (getfattr($filename, "$key", { namespace => 'user' }), $longval2);
+    #read it back
+    is (getfattr($_, "$key", { namespace => 'user' }), $longval2);
 
-   #delete it
-   ok (delfattr($filename, "$key", { namespace => 'user' }));
+    #delete it
+    ok (delfattr($_, "$key", { namespace => 'user' }));
 
-   #check that it's gone
-   is (getfattr($filename, "$key", { namespace => 'user' }), undef);
+    #check that it's gone
+    is (getfattr($_, "$key", { namespace => 'user' }), undef);
 #}
-#print STDERR "done\n";
-#<STDIN>;
+}
 
 ##########################
 # IO::Handle-based tests #
@@ -126,4 +134,7 @@ print "# using file descriptor ".$fh->fileno()."\n";
 #print STDERR "done\n";
 #<STDIN>;
 
-END {unlink $filename if $filename};
+END {
+    unlink $filename if $filename;
+    rmdir $dirname if $dirname;
+};

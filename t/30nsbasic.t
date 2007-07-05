@@ -20,10 +20,11 @@ use t::Support;
 if (t::Support::should_skip()) {
   plan skip_all => 'Tests unsupported on this OS/filesystem';
 } else {
-  plan tests => 12;
+  plan tests => 18;
 }
 
 use File::Temp qw(tempfile);
+use File::Path;
 use File::ExtAttr qw(setfattr getfattr delfattr listfattrns);
 use IO::File;
 
@@ -31,6 +32,13 @@ my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
 my ($fh, $filename) = tempfile( DIR => $TESTDIR );
 
 close $fh || die "can't close $filename $!";
+
+# Create a directory.
+my $dirname = "$filename.dir";
+eval { mkpath($dirname); };
+if ($@) {
+    warn "Couldn't create $dirname: $@";
+}
 
 #todo: try wierd characters in here?
 #     try unicode?
@@ -43,37 +51,37 @@ my @ns;
 #  Filename-based tests  #
 ##########################
 
-print "# using $filename\n";
+foreach ( $filename, $dirname ) {
+    print "# using $_\n";
 
 #for (1..30000) { #checking memory leaks
 
    #will die if xattr stuff doesn't work at all
-   setfattr($filename, "$key", $val, { namespace => 'user' })
-     || die "setfattr failed on filename $filename: $!"; 
+   setfattr($_, "$key", $val, { namespace => 'user' })
+     || die "setfattr failed on filename $_: $!"; 
 
    #set it
-   is (setfattr($filename, "$key", $val, { namespace => 'user' }), 1);
+   is (setfattr($_, "$key", $val, { namespace => 'user' }), 1);
 
    #check user namespace exists now
-   @ns = listfattrns($filename);
+   @ns = listfattrns($_);
    is (grep(/^user$/, @ns), 1);
    print '# '.join(' ', @ns)."\n";
 
    #read it back
-   is (getfattr($filename, "$key", { namespace => 'user' }), $val);
+   is (getfattr($_, "$key", { namespace => 'user' }), $val);
 
    #delete it
-   ok (delfattr($filename, "$key", { namespace => 'user' }));
+   ok (delfattr($_, "$key", { namespace => 'user' }));
 
    #check that it's gone
-   is (getfattr($filename, "$key", { namespace => 'user' }), undef);
+   is (getfattr($_, "$key", { namespace => 'user' }), undef);
 
    #check user namespace doesn't exist now
-   @ns = listfattrns($filename);
+   @ns = listfattrns($_);
    is (grep(/^user$/, @ns), 0);
 #}
-#print STDERR "done\n";
-#<STDIN>;
+}
 
 ##########################
 # IO::Handle-based tests #
@@ -113,4 +121,7 @@ print "# using file descriptor ".$fh->fileno()."\n";
 #print STDERR "done\n";
 #<STDIN>;
 
-END {unlink $filename if $filename};
+END {
+    unlink $filename if $filename;
+    rmdir $dirname if $dirname;
+};

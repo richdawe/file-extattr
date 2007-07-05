@@ -18,10 +18,11 @@ use t::Support;
 if (t::Support::should_skip()) {
   plan skip_all => 'Tests unsupported on this OS/filesystem';
 } else {
-  plan tests => 4;
+  plan tests => 8;
 }
 
 use File::Temp qw(tempfile);
+use File::Path;
 use File::ExtAttr qw(setfattr getfattr delfattr);
 
 # Use the C locale, so all warnings are in the language we are expecting.
@@ -35,25 +36,37 @@ my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
 my ($fh, $filename) = tempfile( DIR => $TESTDIR );
 close $fh || die "can't close $filename $!";
 
-print "# using $filename\n";
+# Create a directory.
+my $dirname = "$filename.dir";
+eval { mkpath($dirname); };
+if ($@) {
+    warn "Couldn't create $dirname: $@";
+}
 
 #todo: try wierd characters in here?
 #     try unicode?
 my $key = "alskdfjadf2340zsdflksjdfa09eralsdkfjaldkjsldkfj";
 my $val = "ZZZadlf03948alsdjfaslfjaoweir12l34kealfkjalskdfas90d8fajdlfkj./.,f";
 
-#set it
-setfattr($filename, "$key", $val, { namespace => 'nonuser' });
-is ($warning =~ /(Operation not supported|No such file or directory|Attribute not found)/, 1);
+foreach ( $filename, $dirname ) {
+    print "# using $_\n";
 
-#read it back
-is (getfattr($filename, "$key", { namespace => 'nonuser' }), undef);
+    #set it
+    setfattr($_, "$key", $val, { namespace => 'nonuser' });
+    is ($warning =~ /(Operation not supported|No such file or directory|Attribute not found)/, 1);
 
-#delete it
-delfattr($filename, "$key", { namespace => 'nonuser' });
-is ($warning =~ /(Operation not supported|No such file or directory|Attribute not found)/, 1);
+    #read it back
+    is (getfattr($_, "$key", { namespace => 'nonuser' }), undef);
 
-#check that it's gone
-is (getfattr($filename, "$key", { namespace => 'nonuser' }), undef);
+    #delete it
+    delfattr($_, "$key", { namespace => 'nonuser' });
+    is ($warning =~ /(Operation not supported|No such file or directory|Attribute not found)/, 1);
 
-END {unlink $filename if $filename};
+    #check that it's gone
+    is (getfattr($_, "$key", { namespace => 'nonuser' }), undef);
+}
+
+END {
+    unlink $filename if $filename;
+    rmdir $dirname if $dirname;
+};
