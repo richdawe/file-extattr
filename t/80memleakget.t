@@ -20,7 +20,7 @@ use t::Support;
 if (t::Support::should_skip()) {
   plan skip_all => 'Tests unsupported on this OS/filesystem';
 } else {
-  plan tests => 60000;
+  plan tests => 6000;
 }
 
 use File::Temp qw(tempfile);
@@ -78,7 +78,7 @@ print "# using file descriptor ".$fh->fileno()."\n";
 setfattr($fh, $key, $val)
     || die "setfattr failed on file descriptor ".$fh->fileno().": $!"; 
 
-for (my $i = 0; $i < 10000; $i++) {
+for (my $i = 0; $i < 1000; $i++) {
     # Check for the existing attribute.
     is(getfattr($fh, $key), $val);
 
