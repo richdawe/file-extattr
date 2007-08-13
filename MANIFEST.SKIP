@@ -1,8 +1,14 @@
 const-c.inc
 const-xs.inc
-xattr.bs
-xattr.c
-xattr.o
+ExtAttr.bs
+ExtAttr.c
+ExtAttr.o
+extattr_bsd.o
+extattr_linux.o
+extattr_macosx.o
+extattr_solaris.o
+flags.o
+helpers.o
 CVS
 Makefile$
 Makefile.old
