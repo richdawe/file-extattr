@@ -1,6 +1,6 @@
 Revision history for Perl extension File::ExtAttr.
 
-1.05 2007-07-05
+1.05 2007-08-13
 
     - (richdawe) Fix META.yml so that it's valid. Add a test using
       		 Test::YAML::Meta to the test suite, to validate META.yml.
@@ -9,6 +9,10 @@ Revision history for Perl extension File::ExtAttr.
 
     - (richdawe) Add test cases for setting attributes on directories,
                  by filename.
+
+    - (richdawe) Bugfix: Fix a memory leak in getfattr(). The memory was
+                 leaked when the function failed, e.g.: if it was called
+                 with the name of a non-existent attribute.
 
 1.04 2007-05-06
 

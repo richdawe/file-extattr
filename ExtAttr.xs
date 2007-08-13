@@ -83,14 +83,17 @@ _getfattr(path, attrname, flags = 0)
 
             //key not found, just return undef
             if(errno == ENOATTR){
+                Safefree(attrvalue);
                 XSRETURN_UNDEF;
 
             //print warning and return undef
             }else{
                 setattr_warn("getxattr", attrname, errno);
+                Safefree(attrvalue);
                 XSRETURN_UNDEF;
             }
         }
+
         RETVAL = newSVpv(attrvalue, attrlen);
         Safefree(attrvalue);
 
@@ -121,14 +124,17 @@ _fgetfattr(fd, attrname, flags = 0)
 
             //key not found, just return undef
             if(errno == ENOATTR){
+                Safefree(attrvalue);
                 XSRETURN_UNDEF;
 
             //print warning and return undef
             }else{
                 setattr_warn("fgetxattr", attrname, errno);
+                Safefree(attrvalue);
                 XSRETURN_UNDEF;
             }
         }
+
         RETVAL = newSVpv(attrvalue, attrlen);
         Safefree(attrvalue);
 
