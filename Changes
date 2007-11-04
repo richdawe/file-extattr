@@ -1,5 +1,12 @@
 Revision history for Perl extension File::ExtAttr.
 
+1.06 2007-11-04
+
+    - (richdawe) Bugfix: Builds and works again on Mac OS X 10.4 (Tiger).
+
+    - (richdawe) Fix typo in t/33nslong.t, which caused it to fail
+                 on Mac OS X.
+
 1.05 2007-08-13
 
     - (richdawe) Fix META.yml so that it's valid. Add a test using
