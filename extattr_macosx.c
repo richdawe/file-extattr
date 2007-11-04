@@ -35,7 +35,7 @@ macosx_setxattr (const char *path,
   }
 
   if (ok)
-    ret = setxattr(path, attrname, attrvalue, slen, xflags);
+    ret = setxattr(path, attrname, attrvalue, slen, 0, xflags);
 
   return ok ? ret : -1;
 }
@@ -67,7 +67,7 @@ macosx_fsetxattr (const int fd,
   }
 
   if (ok)
-    ret = fsetxattr(fd, attrname, attrvalue, slen, xflags);
+    ret = fsetxattr(fd, attrname, attrvalue, slen, 0, xflags);
 
   return ok ? ret : -1;
 }

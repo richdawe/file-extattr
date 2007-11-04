@@ -4,12 +4,12 @@
 /* OS detection */
 #include <sys/param.h>
 
-#ifdef BSD
-#define EXTATTR_BSD
+#if defined(__MACH__) && defined(__APPLE__)
+#define EXTATTR_MACOSX
 #endif
 
-#ifdef __APPLE__
-#define EXTATTR_MACOSX
+#if defined(BSD) && !defined(EXTATTR_MACOSX)
+#define EXTATTR_BSD
 #endif
 
 #if defined(sun) || defined(__sun)

@@ -82,7 +82,7 @@ portable_fgetxattr (const int fd,
 static inline ssize_t
 portable_lenxattr (const char *path, const char *attrname, struct hv *flags)
 {
-#ifdef BSD
+#ifdef EXTATTR_BSD
   /* XXX: flags? Namespace? */
   return extattr_get_file(path, EXTATTR_NAMESPACE_USER, attrname, NULL, 0);
 #else
@@ -94,7 +94,7 @@ portable_lenxattr (const char *path, const char *attrname, struct hv *flags)
 static inline int
 portable_flenxattr (int fd, const char *attrname, struct hv *flags)
 {
-#ifdef BSD
+#ifdef EXTATTR_BSD
   /* XXX: flags? Namespace? */
   return extattr_get_fd(fd, EXTATTR_NAMESPACE_USER, attrname, NULL, 0);
 #else

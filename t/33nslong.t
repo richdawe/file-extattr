@@ -111,7 +111,7 @@ print "# using file descriptor ".$fh->fileno()."\n";
    is (setfattr($fh, "$key", $longval, { namespace => 'user' }), 1);
 
    #read it back
-   is (getfattr($fh, "$key"), $longval, { namespace => 'user' });
+   is (getfattr($fh, "$key", { namespace => 'user' }), $longval);
 
    #delete it
    ok (delfattr($fh, "$key", { namespace => 'user' }));
