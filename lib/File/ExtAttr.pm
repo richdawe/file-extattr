@@ -180,7 +180,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw(
 );
 
-our $VERSION = '1.06';
+our $VERSION = '1.07';
 
 #this is used by getxattr(), needs documentation
 $File::ExtAttr::MAX_INITIAL_VALUELEN = 255;
@@ -416,7 +416,7 @@ L<http://docsun.cites.uiuc.edu/sun_docs/C/solaris_9/SUNWaman/hman5/fsattr.5.html
 
 Kevin M. Goess, E<lt>kgoess@ensenda.comE<gt>
 
-Richard Dawe, E<lt>rich@phekda.gotadsl.co.ukE<gt>
+Richard Dawe, E<lt>richdawe@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 

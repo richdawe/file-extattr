@@ -111,7 +111,7 @@ L<File::ExtAttr>
 
 David Leadbeater, L<http://dgl.cx/contact>
 
-Documentation by Richard Dawe, E<lt>rich@phekda.gotadsl.co.ukE<gt>
+Documentation by Richard Dawe, E<lt>richdawe@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 

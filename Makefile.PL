@@ -42,7 +42,7 @@ WriteMakefile(
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/File/ExtAttr.pm', # retrieve abstract from module
        AUTHOR         => 'Kevin M. Goess <kgoess@ensenda.com>'
-                         .', Richard Dawe <rich@phekda.gotadsl.co.uk>') : ()),
+                         .', Richard Dawe <richdawe@cpan.org>') : ()),
 # Don't actually need -lattr on Linux.
 #    LIBS              => ['-lattr'], # e.g., '-lm'
     OBJECT            => '$(O_FILES)',
