@@ -27,6 +27,7 @@ t/02load-all.t
 t/03pod-coverage.t
 t/04yaml-meta.t
 t/11basic.t
+t/12empty.t
 t/13long.t
 t/14optional.t
 t/15create.t

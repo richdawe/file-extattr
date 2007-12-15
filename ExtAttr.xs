@@ -76,7 +76,7 @@ _getfattr(path, attrname, flags = 0)
 	  buflen = SvIV(get_sv(MAX_INITIAL_VALUELEN_VARNAME, FALSE));
 
         attrvalue = NULL;
-        New(1, attrvalue, buflen, char);
+        Newz(1, attrvalue, buflen, char);
 
         attrlen = portable_getxattr(path, attrname, attrvalue, buflen, flags);
         if (attrlen == -1){
@@ -117,7 +117,7 @@ _fgetfattr(fd, attrname, flags = 0)
 	  buflen = SvIV(get_sv(MAX_INITIAL_VALUELEN_VARNAME, FALSE));
 
         attrvalue = NULL;
-        New(1, attrvalue, buflen, char);
+        Newz(1, attrvalue, buflen, char);
 
         attrlen = portable_fgetxattr(fd, attrname, attrvalue, buflen, flags);
         if (attrlen == -1){
