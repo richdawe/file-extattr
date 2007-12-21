@@ -1,5 +1,10 @@
 Revision history for Perl extension File::ExtAttr.
 
+1.08 2007-??-??
+
+    - (richdawe) Add a typemap for usage of "const char *" in the XS.
+                 This may help fix the build with Perl 5.6.x or earlier.
+
 1.07 2007-12-15
 
     - (richdawe) Bugfix: When the attribute value was empty, getfattr()

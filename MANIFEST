@@ -6,6 +6,7 @@ ppport.h
 README
 TODO
 ExtAttr.xs
+typemap
 portable.h
 flags.c
 flags.h
