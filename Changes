@@ -1,6 +1,6 @@
 Revision history for Perl extension File::ExtAttr.
 
-1.08 2007-??-??
+1.08 2008-??-??
 
     - (richdawe) Add a typemap for usage of "const char *" in the XS.
                  This may help fix the build with Perl 5.6.x or earlier.
