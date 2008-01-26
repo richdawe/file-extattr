@@ -243,7 +243,7 @@ for the file named C<$filename> or referenced by the open filehandle
 C<$filehandle> (which should be an IO::Handle or subclass thereof).
 
 C<%flags> allows control of whether the attribute should be created
-or should replace an existing attribute\'s value. If the key C<create>
+or should replace an existing attribute's value. If the key C<create>
 is true, setfattr will fail if the attribute already exists. If the key
 C<replace> is true, setfattr will fail if the attribute
 does not already exist. If neither is specified, then the attribute
