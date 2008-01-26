@@ -364,6 +364,8 @@ Various low-level APIs exist for manipulating extended attributes:
 
 =item Linux
 
+getattr(2), attr(5)
+
 L<http://www.die.net/doc/linux/man/man2/getxattr.2.html>
 
 L<http://www.die.net/doc/linux/man/man5/attr.5.html>
@@ -385,6 +387,8 @@ L<http://www.openbsd.org/cgi-bin/cvsweb/src/sys/sys/Attic/extattr.h>
 
 FreeBSD >= 5.0 supports extended attributes.
 
+extattr(2)
+
 L<http://www.freebsd.org/cgi/man.cgi?query=extattr&sektion=2&apropos=0&manpath=FreeBSD+6.0-RELEASE+and+Ports>
 
 =item NetBSD
@@ -398,11 +402,15 @@ L<http://www.netbsd.org/Changes/changes-4.0.html#ufs>
 
 =item Mac OS X
 
+getxattr(2)
+
 L<http://developer.apple.com/documentation/Darwin/Reference/ManPages/man2/getxattr.2.html>
 
 L<http://arstechnica.com/reviews/os/macosx-10.4.ars/7>
 
 =item Solaris
+
+attropen(3C), fsattr(5)
 
 L<http://docsun.cites.uiuc.edu/sun_docs/C/solaris_9/SUNWaman/hman3c/attropen.3c.html>
 
