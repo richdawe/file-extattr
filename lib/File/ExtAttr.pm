@@ -76,9 +76,7 @@ E.g.:
 
 =item FreeBSD 5.0 and later
 
-=item NetBSD 3.0 and later (builds)
-
-=item NetBSD 4.0 and later (for UFS filesystem with xattr support)
+=item NetBSD 4.0 and later
 
 =item Solaris 10 and later
 
