@@ -1,7 +1,4 @@
 todo:
-* Detect libattr (for the header) using Devel::CheckLib
-  -- See <http://use.perl.org/~barbie/journal/35584?from=rss>.
-  -- There's no Fedora package, so package it too.
 * utf8
 * warnings
 * check that partition supports it, especially in unit test

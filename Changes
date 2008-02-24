@@ -8,6 +8,14 @@ Revision history for Perl extension File::ExtAttr.
     - (richdawe) Remove NetBSD 3.x from list of supported OSes,
                  since File::ExtAttr's test suite will never pass on it.
 
+    - (richdawe) Update Makefile.PL to fail more gracefully when the build
+                 pre-requisites are not present. On Linux use
+                 Devel::CheckLib to check for libattr. Also exit
+                 more gracefully if libattr's headers are not present.
+
+    - (richdawe) OpenBSD isn't supported, so bail gracefully
+                 in Makefile.PL on that platform.
+
 1.07 2007-12-15
 
     - (richdawe) Bugfix: When the attribute value was empty, getfattr()
