@@ -2,7 +2,6 @@
 
 use strict;
 use Test::More;
-use POSIX qw/setlocale LC_ALL/;
 
 BEGIN {
   my $tlib = $0;
@@ -21,13 +20,6 @@ use File::Temp qw(tempfile);
 use File::Path;
 use File::ExtAttr::Tie;
 use File::ExtAttr qw(getfattr);
-
-# Use the C locale, so all warnings are in the language we are expecting.
-setlocale(LC_ALL, 'C');
-
-# Snaffle away the warnings for later analysis.
-my $warning;
-$SIG{'__WARN__'} = sub { $warning = $_[0] };
 
 my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
 my ($fh, $filename) = tempfile( DIR => $TESTDIR );
@@ -56,6 +48,7 @@ foreach ( $filename, $dirname ) {
     # Test multiple attributes.
     my %test_attrs = ( 'foo' => '123', 'bar' => '456' );
     my $k;
+    my $err;
 
     foreach $k (sort(keys(%test_attrs)))
     {
@@ -63,16 +56,19 @@ foreach ( $filename, $dirname ) {
 
         # Check that creation works.
         $extattr{$k} = $v;
-        is ($warning =~ /(Operation not supported|No such file or directory|Attribute not found)/, 1);
+        $err = int $!;
+        is ($err, $!{EOPNOTSUPP});
         is(getfattr($_, "$k"), undef);
 
         # Check that updating works.
         $extattr{$k} = "$v$v";
-        is ($warning =~ /(Operation not supported|No such file or directory|Attribute not found)/, 1);
+        $err = int $!;
+        is ($err, $!{EOPNOTSUPP});
         is(getfattr($_, "$k"), undef);
 
         $extattr{$k} = $v;
-        is ($warning =~ /(Operation not supported|No such file or directory|Attribute not found)/, 1);
+        $err = int $!;
+        is ($err, $!{EOPNOTSUPP});
         is(getfattr($_, "$k"), undef);
 
         # Check that deletion works.
@@ -88,7 +84,8 @@ foreach ( $filename, $dirname ) {
 
         # Check that creation works.
         $extattr{$k} = $v;
-        is ($warning =~ /(Operation not supported|No such file or directory|Attribute not found)/, 1);
+        $err = int $!;
+        is ($err, $!{EOPNOTSUPP});
         is(getfattr($_, "$k"), undef);
     }
 

@@ -23,6 +23,10 @@ Revision history for Perl extension File::ExtAttr.
                  - Test on FreeBSD, Solaris, Mac OS X.
                  - Make sure I've actually addressed API concerns in #32670.
 
+    - (richdawe) File::ExtAttr no longer generate noisy warnings
+                 when an xattr system call fails. All error reporting
+                 is now via the function return values and $!.
+
 1.07 2007-12-15
 
     - (richdawe) Bugfix: When the attribute value was empty, getfattr()

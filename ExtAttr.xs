@@ -3,7 +3,6 @@
 #include "XSUB.h"
 
 #include "ppport.h"
-#include "helpers.h"
 #include "portable.h"
 
 
@@ -30,10 +29,8 @@ _setfattr (path, attrname, attrvalueSV, flags = 0)
     CODE:
         attrvalue = SvPV(attrvalueSV, slen);
         rc = portable_setxattr(path, attrname, attrvalue, slen, flags);
-        if (rc < 0) {
-          setattr_warn("setxattr", attrname, errno);
+        if (rc < 0)
           errno = -rc;
-        }
         RETVAL = (rc == 0);
 
     OUTPUT: 
@@ -54,10 +51,8 @@ _fsetfattr (fd, attrname, attrvalueSV, flags = 0)
     CODE:
         attrvalue = SvPV(attrvalueSV, slen);
         rc = portable_fsetxattr(fd, attrname, attrvalue, slen, flags);
-        if (rc < 0) {
-          setattr_warn("fsetxattr", attrname, errno);
+        if (rc < 0)
           errno = -rc;
-        }
         RETVAL = (rc == 0);
 
     OUTPUT: 
@@ -91,9 +86,8 @@ _getfattr(path, attrname, flags = 0)
                 errno = -attrlen;
                 XSRETURN_UNDEF;
 
-            //print warning and return undef
+            //return undef
             }else{
-                setattr_warn("getxattr", attrname, errno);
                 Safefree(attrvalue);
                 errno = -attrlen;
                 XSRETURN_UNDEF;
@@ -134,9 +128,8 @@ _fgetfattr(fd, attrname, flags = 0)
                 errno = -attrlen;
                 XSRETURN_UNDEF;
 
-            //print warning and return undef
+            //return undef
             }else{
-                setattr_warn("fgetxattr", attrname, errno);
                 Safefree(attrvalue);
                 errno = -attrlen;
                 XSRETURN_UNDEF;

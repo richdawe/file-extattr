@@ -1,12 +1,10 @@
 todo:
 * utf8
-* warnings
 * check that partition supports it, especially in unit test
 * docs, explain user_xattr, mount -o remount
 * change to use section 2 calls instead of section 3
 * for "operation not supported" note must be prefixed with "user"
 * buffer size, reuse buffer?
-* Get rid of setattr_warn
 * Set $! to errno in xattr operations, for use in FUSE filesystems.
 * symbolic link handling (O_NOFOLLOW on Mac OS X)
 * Check it can be used with Perl 5.6.x

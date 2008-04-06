@@ -11,8 +11,6 @@ typemap
 portable.h
 flags.c
 flags.h
-helpers.h
-helpers.c
 extattr_bsd.h
 extattr_bsd.c
 extattr_linux.h
