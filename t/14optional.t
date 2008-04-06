@@ -29,7 +29,7 @@ use File::ExtAttr qw(setfattr getfattr delfattr);
 
 my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
 my ($fh, $filename) = tempfile( DIR => $TESTDIR );
-close $fh || die "can't close $filename $!";
+close $fh or die "can't close $filename $!";
 
 # Create a directory.
 my $dirname = "$filename.dir";
@@ -49,7 +49,7 @@ foreach ( $filename, $dirname ) {
 #for (1..30000) { #checking memory leaks
 
     #will die if xattr stuff doesn't work at all
-    setfattr($_, "$key", $val) || die "setfattr failed on $_: $!"; 
+    setfattr($_, "$key", $val) or die "setfattr failed on $_: $!"; 
 
     #set it
     is (setfattr($_, "$key", $val), 1);

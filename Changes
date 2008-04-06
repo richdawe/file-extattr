@@ -16,6 +16,13 @@ Revision history for Perl extension File::ExtAttr.
     - (richdawe) OpenBSD isn't supported, so bail gracefully
                  in Makefile.PL on that platform.
 
+    - (richdawe) Make sure that the errno value from any failed
+                 system calls is propagated into $! (#32679, #32680).
+
+                 XXX: This is incomplete:
+                 - Test on FreeBSD, Solaris, Mac OS X.
+                 - Make sure I've actually addressed API concerns in #32670.
+
 1.07 2007-12-15
 
     - (richdawe) Bugfix: When the attribute value was empty, getfattr()

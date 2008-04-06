@@ -32,7 +32,7 @@ $SIG{'__WARN__'} = sub { $warning = $_[0] };
 my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
 my ($fh, $filename) = tempfile( DIR => $TESTDIR );
 
-close $fh || die "can't close $filename $!";
+close $fh or die "can't close $filename $!";
 
 # Create a directory.
 my $dirname = "$filename.dir";

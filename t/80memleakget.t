@@ -31,7 +31,7 @@ use IO::File;
 my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
 my ($fh, $filename) = tempfile( DIR => $TESTDIR );
 
-close $fh || die "can't close $filename $!";
+close $fh or die "can't close $filename $!";
 
 # Create a directory.
 my $dirname = "$filename.dir";
@@ -53,7 +53,7 @@ my $key2 = $key.'2';
 foreach ( $filename, $dirname ) {
     print "# using $_\n";
 
-    setfattr($_, $key, $val) || die "setfattr failed on filename $_: $!";
+    setfattr($_, $key, $val) or die "setfattr failed on filename $_: $!";
 
     for (my $i = 0; $i < 1000; $i++) {
         # Check for the existing attribute.
@@ -71,12 +71,12 @@ foreach ( $filename, $dirname ) {
 # IO::Handle-based tests #
 ##########################
 
-$fh = new IO::File("<$filename") || die "Unable to open $filename";
+$fh = new IO::File("<$filename") or die "Unable to open $filename";
 
 print "# using file descriptor ".$fh->fileno()."\n";
 
 setfattr($fh, $key, $val)
-    || die "setfattr failed on file descriptor ".$fh->fileno().": $!"; 
+    or die "setfattr failed on file descriptor ".$fh->fileno().": $!"; 
 
 for (my $i = 0; $i < 1000; $i++) {
     # Check for the existing attribute.

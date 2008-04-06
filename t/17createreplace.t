@@ -31,7 +31,7 @@ use IO::File;
 my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
 my ($fh, $filename) = tempfile( DIR => $TESTDIR );
 
-close $fh || die "can't close $filename $!";
+close $fh or die "can't close $filename $!";
 
 # Create a directory.
 my $dirname = "$filename.dir";
@@ -65,7 +65,7 @@ foreach ( $filename, $dirname ) {
 # IO::Handle-based tests #
 ##########################
 
-$fh = new IO::File("<$filename") || die "Unable to open $filename";
+$fh = new IO::File("<$filename") or die "Unable to open $filename";
 
 print "# using file descriptor ".$fh->fileno()."\n";
 

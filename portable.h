@@ -6,7 +6,11 @@
 
 struct hv;
 
-/* Portable extattr functions */
+/*
+ * Portable extattr functions. When these fail, they should return
+ * -errno, i.e.: < 0 indicates failure.
+ */
+
 static inline int
 portable_setxattr (const char *path,
                    const char *attrname,

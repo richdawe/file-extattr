@@ -20,7 +20,7 @@ use t::Support;
 if (t::Support::should_skip()) {
   plan skip_all => 'Tests unsupported on this OS/filesystem';
 } else {
-  plan tests => 12;
+  plan tests => 18;
 }
 
 use File::Temp qw(tempfile);
@@ -31,7 +31,7 @@ use IO::File;
 my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
 my ($fh, $filename) = tempfile( DIR => $TESTDIR );
 
-close $fh || die "can't close $filename $!";
+close $fh or die "can't close $filename $!";
 
 # Create a directory.
 my $dirname = "$filename.dir";
@@ -53,15 +53,19 @@ foreach ( $filename, $dirname ) {
     print "# using $_\n";
 
     #set it - should fail
-    undef $@;
-    eval { setfattr($_, "$key", $val, { namespace => '' }); };
-    isnt ($@, undef);
+    my $ret = setfattr($_, "$key", $val, { namespace => '' });
+    my $err = int $!;
+    is ($ret, 0);
+    is ($err, $!{EOPNOTSUPP});
 
     #read it back - should be missing
     is (getfattr($_, "$key", { namespace => '' }), undef);
 
     #delete it - should fail
-    is (delfattr($_, "$key", { namespace => '' }), 0);
+    $ret = delfattr($_, "$key", { namespace => '' });
+    $err = int $!;
+    is ($ret, 0);
+    is ($err, $!{EOPNOTSUPP});
 
     #check that it's gone
     is (getfattr($_, "$key", { namespace => '' }), undef);
@@ -71,22 +75,26 @@ foreach ( $filename, $dirname ) {
 # IO::Handle-based tests #
 ##########################
 
-$fh = new IO::File("<$filename") || die "Unable to open $filename";
+$fh = new IO::File("<$filename") or die "Unable to open $filename";
 
 print "# using file descriptor ".$fh->fileno()."\n";
 
-undef $@;
-eval { setfattr($fh->fileno(), "$key", $val, { namespace => '' }); };
-isnt ($@, undef);
+my $ret = setfattr($fh, "$key", $val, { namespace => '' });
+my $err = int $!;
+is ($ret, 0);
+is ($err, $!{EOPNOTSUPP});
 
 #read it back - should be missing
-is (getfattr($fh->fileno(), "$key", { namespace => '' }), undef);
+is (getfattr($fh, "$key", { namespace => '' }), undef);
 
 #delete it - should fail
-is (delfattr($fh->fileno(), "$key", { namespace => '' }), 0);
+$ret = delfattr($fh, "$key", { namespace => '' });
+$err = int $!;
+is ($ret, 0);
+is ($err, $!{EOPNOTSUPP});
 
 #check that it's gone
-is (getfattr($fh->fileno(), "$key", { namespace => '' }), undef);
+is (getfattr($fh, "$key", { namespace => '' }), undef);
 
 END {
     unlink $filename if $filename;

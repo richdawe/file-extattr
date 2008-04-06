@@ -9,6 +9,7 @@
 
 use strict;
 use Test::More;
+use Errno;
 
 BEGIN {
   my $tlib = $0;
@@ -20,7 +21,7 @@ use t::Support;
 if (t::Support::should_skip()) {
   plan skip_all => 'Tests unsupported on this OS/filesystem';
 } else {
-  plan tests => 15;
+  plan tests => 16;
 }
 
 use File::Temp qw(tempfile);
@@ -31,7 +32,7 @@ use IO::File;
 my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
 my ($fh, $filename) = tempfile( DIR => $TESTDIR );
 
-close $fh || die "can't close $filename $!";
+close $fh or die "can't close $filename $!";
 
 # Create a directory.
 my $dirname = "$filename.dir";
@@ -72,7 +73,7 @@ foreach ( $filename, $dirname ) {
 # IO::Handle-based tests #
 ##########################
 
-$fh = new IO::File("<$filename") || die "Unable to open $filename";
+$fh = new IO::File("<$filename") or die "Unable to open $filename";
 
 print "# using file descriptor ".$fh->fileno()."\n";
 
@@ -80,7 +81,10 @@ print "# using file descriptor ".$fh->fileno()."\n";
 is (setfattr($fh, "$key", $val, { create => 1 }), 1);
 
 #create it again -- should fail
-is (setfattr($fh, "$key", $val, { create => 1 }), 0);
+my $ret = setfattr($fh, "$key", $val, { create => 1 });
+my $err = int $!;
+is ($ret, 0);
+is ($err, $!{EEXIST});
 
 #read it back
 is (getfattr($fh, "$key"), $val);

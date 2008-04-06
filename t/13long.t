@@ -33,7 +33,7 @@ use IO::File;
 
 my $TESTDIR = ($ENV{ATTR_TEST_DIR} || '.');
 my ($fh, $filename) = tempfile( DIR => $TESTDIR );
-close $fh || die "can't close $filename $!";
+close $fh or die "can't close $filename $!";
 
 # Create a directory.
 my $dirname = "$filename.dir";
@@ -60,8 +60,8 @@ foreach ( $filename, $dirname ) {
     #Hmmm, 3991 is the biggest number that doesn't generate "no space left on device"
     #on my /var partition, and 920 is the biggest for my loopback partition.
     #What's up with that?
-    #setfattr($_, "$key-2", ('x' x 3991)) || die "setfattr failed on $_: $!"; 
-    setfattr($_, "$key", $longval) || die "setfattr failed on $_: $!";
+    #setfattr($_, "$key-2", ('x' x 3991)) or die "setfattr failed on $_: $!"; 
+    setfattr($_, "$key", $longval) or die "setfattr failed on $_: $!";
 
     #set it
     is (setfattr($_, "$key", $longval), 1);
@@ -93,7 +93,7 @@ foreach ( $filename, $dirname ) {
 # IO::Handle-based tests #
 ##########################
 
-$fh = new IO::File("<$filename") || die "Unable to open $filename";
+$fh = new IO::File("<$filename") or die "Unable to open $filename";
 
 print "# using file descriptor ".$fh->fileno()."\n";
 
@@ -102,9 +102,9 @@ print "# using file descriptor ".$fh->fileno()."\n";
    #Hmmm, 3991 is the biggest number that doesn't generate "no space left on device"
    #on my /var partition, and 920 is the biggest for my loopback partition.
    #What's up with that?
-   #setfattr($filename, "$key-2", ('x' x 3991)) || die "setfattr failed on $filename: $!"; 
+   #setfattr($filename, "$key-2", ('x' x 3991)) or die "setfattr failed on $filename: $!"; 
    setfattr($fh, "$key", $longval)
-    || die "setfattr failed on file descriptor ".$fh->fileno().": $!"; 
+    or die "setfattr failed on file descriptor ".$fh->fileno().": $!"; 
 
    #set it
    is (setfattr($fh, "$key", $longval), 1);

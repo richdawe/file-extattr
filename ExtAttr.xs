@@ -30,8 +30,10 @@ _setfattr (path, attrname, attrvalueSV, flags = 0)
     CODE:
         attrvalue = SvPV(attrvalueSV, slen);
         rc = portable_setxattr(path, attrname, attrvalue, slen, flags);
-        if (rc == -1)
+        if (rc < 0) {
           setattr_warn("setxattr", attrname, errno);
+          errno = -rc;
+        }
         RETVAL = (rc == 0);
 
     OUTPUT: 
@@ -52,8 +54,10 @@ _fsetfattr (fd, attrname, attrvalueSV, flags = 0)
     CODE:
         attrvalue = SvPV(attrvalueSV, slen);
         rc = portable_fsetxattr(fd, attrname, attrvalue, slen, flags);
-        if (rc == -1)
+        if (rc < 0) {
           setattr_warn("fsetxattr", attrname, errno);
+          errno = -rc;
+        }
         RETVAL = (rc == 0);
 
     OUTPUT: 
@@ -79,17 +83,19 @@ _getfattr(path, attrname, flags = 0)
         Newz(1, attrvalue, buflen, char);
 
         attrlen = portable_getxattr(path, attrname, attrvalue, buflen, flags);
-        if (attrlen == -1){
+        if (attrlen < 0){
 
             //key not found, just return undef
             if(errno == ENOATTR){
                 Safefree(attrvalue);
+                errno = -attrlen;
                 XSRETURN_UNDEF;
 
             //print warning and return undef
             }else{
                 setattr_warn("getxattr", attrname, errno);
                 Safefree(attrvalue);
+                errno = -attrlen;
                 XSRETURN_UNDEF;
             }
         }
@@ -120,17 +126,19 @@ _fgetfattr(fd, attrname, flags = 0)
         Newz(1, attrvalue, buflen, char);
 
         attrlen = portable_fgetxattr(fd, attrname, attrvalue, buflen, flags);
-        if (attrlen == -1){
+        if (attrlen < 0){
 
             //key not found, just return undef
             if(errno == ENOATTR){
                 Safefree(attrvalue);
+                errno = -attrlen;
                 XSRETURN_UNDEF;
 
             //print warning and return undef
             }else{
                 setattr_warn("fgetxattr", attrname, errno);
                 Safefree(attrvalue);
+                errno = -attrlen;
                 XSRETURN_UNDEF;
             }
         }
@@ -147,8 +155,14 @@ _delfattr (path, attrname, flags = 0)
         const char *path
         const char *attrname
         HV * flags
+    PREINIT:
+        int rc;
+
     CODE:
-        RETVAL = (portable_removexattr(path, attrname, flags) == 0);
+        rc = portable_removexattr(path, attrname, flags);
+        if (rc < 0)
+          errno = -rc;
+        RETVAL = (rc == 0);
     
     OUTPUT: 
         RETVAL
@@ -159,8 +173,14 @@ _fdelfattr (fd, attrname, flags = 0)
         int fd
         const char *attrname
         HV * flags
+    PREINIT:
+        int rc;
+
     CODE:
-        RETVAL = (portable_fremovexattr(fd, attrname, flags) == 0);
+        rc = portable_fremovexattr(fd, attrname, flags);
+        if (rc < 0)
+          errno = -rc;
+        RETVAL = (rc == 0);
     
     OUTPUT: 
         RETVAL
@@ -181,8 +201,9 @@ _listfattr (path, fd, flags = 0)
         else
             size = portable_flistxattr(fd, NULL, 0, flags);
 
-        if (size == -1)
+        if (size < 0)
         {
+            errno = -(int) size;
             XSRETURN_UNDEF;
         } else if (size == 0)
         {
@@ -200,9 +221,10 @@ _listfattr (path, fd, flags = 0)
         // attribute between the two listxattr calls. However it just means we
         // might return ERANGE.
 
-        if (ret == -1)
+        if (ret < 0)
         {
             free(namebuf);
+            errno = -ret;
             XSRETURN_UNDEF;
         } else if (ret == 0)
         {
@@ -243,8 +265,9 @@ _listfattrns (path, fd, flags = 0)
         else
             size = portable_flistxattrns(fd, NULL, 0, flags);
 
-        if (size == -1)
+        if (size < 0)
         {
+            errno = -(int) size;
             XSRETURN_UNDEF;
         } else if (size == 0)
         {
@@ -262,9 +285,10 @@ _listfattrns (path, fd, flags = 0)
         // attribute between the two listxattr calls. However it just means we
         // might return ERANGE.
 
-        if (ret == -1)
+        if (ret < 0)
         {
             free(namebuf);
+            errno = -ret;
             XSRETURN_UNDEF;
         } else if (ret == 0)
         {

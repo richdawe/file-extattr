@@ -116,12 +116,13 @@ linux_setxattr (const char *path,
   if (q)
   {
     ret = setxattr(path, q, attrvalue, slen, xflags);
+    if (ret == -1)
+      ret = -errno;
     free(q);
   }
   else
   {
-    ret = -1;
-    errno = ENOMEM;
+    ret = -ENOMEM;
   }
 
   return ret;
@@ -151,12 +152,13 @@ linux_fsetxattr (const int fd,
   if (q)
   {
     ret = fsetxattr(fd, q, attrvalue, slen, xflags);
+    if (ret == -1)
+      ret = -errno;
     free(q);
   }
   else
   {
-    ret = -1;
-    errno = ENOMEM;
+    ret = -ENOMEM;
   }
 
   return ret;
@@ -176,12 +178,13 @@ linux_getxattr (const char *path,
   if (q)
   {
     ret = getxattr(path, q, attrvalue, slen);
+    if (ret == -1)
+      ret = -errno;
     free(q);
   }
   else
   {
-    ret = -1;
-    errno = ENOMEM;
+    ret = -ENOMEM;
   }
 
   return ret;
@@ -201,12 +204,13 @@ linux_fgetxattr (const int fd,
   if (q)
   {
     ret = fgetxattr(fd, q, attrvalue, slen);
+    if (ret == -1)
+      ret = -errno;
     free(q);
   }
   else
   {
-    ret = -1;
-    errno = ENOMEM;
+    ret = -ENOMEM;
   }
 
   return ret;
@@ -225,12 +229,13 @@ linux_removexattr (const char *path,
   if (q)
   {
     ret = removexattr(path, q);
+    if (ret == -1)
+      ret = -errno;
     free(q);
   }
   else
   {
-    ret = -1;
-    errno = ENOMEM;
+    ret = -ENOMEM;
   }
 
   return ret;
@@ -249,12 +254,13 @@ linux_fremovexattr (const int fd,
   if (q)
   {
     ret = fremovexattr(fd, q);
+    if (ret == -1)
+      ret = -errno;
     free(q);
   }
   else
   {
-    ret = -1;
-    errno = ENOMEM;
+    ret = -ENOMEM;
   }
 
   return ret;
@@ -329,8 +335,7 @@ attrlist2list (char *sbuf, const size_t slen,
   }
   else
   {
-    errno = ERANGE;
-    ret = -1;
+    ret = -ERANGE;
   }
 
   return ret;
@@ -351,8 +356,7 @@ linux_listxattr (const char *path,
   pNS = flags2namespace(flags);
   if (!pNS)
   {
-    ret = -1;
-    errno = ENOMEM;
+    ret = -ENOMEM;
   }
 
   /*
@@ -364,27 +368,26 @@ linux_listxattr (const char *path,
     ssize_t slen;
 
     slen = listxattr(path, buf, 0);
-    if (slen >= 0)
-    {
+    if (slen == -1) {
+      ret = -errno;
+    } else if (slen >= 0) {
       char *sbuf;
    
       sbuf = malloc(slen);
-      if (sbuf)
+      if (sbuf) {
         slen = listxattr(path, sbuf, slen);
-      else
-        ret = -1;
-
-      if (slen)
-        ret = attrlist2list(sbuf, slen, buf, buflen, 1, pNS);
-      else
-        ret = slen;
+        if (slen >= 0) {
+          ret = attrlist2list(sbuf, slen, buf, buflen, 1, pNS);
+        } else {
+          ret = -errno;
+        }
+      } else {
+        ret = -errno;
+        slen = 0;
+      }
 
       if (sbuf)
         free(sbuf);
-    }
-    else
-    {
-      ret = slen;
     }
   }
 
@@ -406,8 +409,7 @@ linux_flistxattr (const int fd,
   pNS = flags2namespace(flags);
   if (!pNS)
   {
-    ret = -1;
-    errno = ENOMEM;
+    ret = -ENOMEM;
   }
 
   /*
@@ -419,27 +421,25 @@ linux_flistxattr (const int fd,
     ssize_t slen;
 
     slen = flistxattr(fd, buf, 0);
-    if (slen >= 0)
-    {
+    if (slen == -1) {
+      ret = -errno;
+    } else if (slen >= 0) {
       char *sbuf;
    
       sbuf = malloc(slen);
-      if (sbuf)
+      if (sbuf) {
         slen = flistxattr(fd, sbuf, slen);
-      else
-        ret = -1;
-
-      if (slen)
-        ret = attrlist2list(sbuf, slen, buf, buflen, 1, pNS);
-      else
-        ret = slen;
+        if (slen >= 0) {
+          ret = attrlist2list(sbuf, slen, buf, buflen, 1, pNS);
+        } else {
+          ret = -errno;
+        }
+      } else {
+        ret = -errno;
+      }
 
       if (sbuf)
         free(sbuf);
-    }
-    else
-    {
-      ret = slen;
     }
   }
 
@@ -468,22 +468,23 @@ linux_listxattrns (const char *path,
     char *sbuf;
    
     sbuf = malloc(slen);
-    if (sbuf)
+    if (sbuf) {
       slen = listxattr(path, sbuf, slen);
-    else
-      ret = -1;
-
-    if (slen)
-      ret = attrlist2list(sbuf, slen, buf, buflen, 0, NULL);
-    else
-      ret = slen;
+      if (slen >= 0) {
+        ret = attrlist2list(sbuf, slen, buf, buflen, 0, NULL);
+      } else {
+        ret = -errno;
+      }
+    } else {
+      ret = -errno;
+    }
 
     if (sbuf)
       free(sbuf);
   }
   else
   {
-    ret = slen;
+    ret = -errno;
   }
 
   return ret;
@@ -508,22 +509,23 @@ linux_flistxattrns (const int fd,
     char *sbuf;
    
     sbuf = malloc(slen);
-    if (sbuf)
+    if (sbuf) {
       slen = flistxattr(fd, sbuf, slen);
-    else
-      ret = -1;
-
-    if (slen)
-      ret = attrlist2list(sbuf, slen, buf, buflen, 0, NULL);
-    else
-      ret = slen;
+      if (slen >= 0) {
+        ret = attrlist2list(sbuf, slen, buf, buflen, 0, NULL);
+      } else {
+        ret = -errno;
+      }
+    } else {
+      ret = -errno;
+    }
 
     if (sbuf)
       free(sbuf);
   }
   else
   {
-    ret = slen;
+    ret = -errno;
   }
 
   return ret;
