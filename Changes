@@ -20,12 +20,16 @@ Revision history for Perl extension File::ExtAttr.
                  system calls is propagated into $! (#32679, #32680).
 
                  XXX: This is incomplete:
-                 - Test on FreeBSD, Solaris, Mac OS X.
+                 - Test on FreeBSD, Solaris.
                  - Make sure I've actually addressed API concerns in #32670.
 
     - (richdawe) File::ExtAttr no longer generate noisy warnings
                  when an xattr system call fails. All error reporting
                  is now via the function return values and $!.
+
+    - (richdawe) Operations with non-default or non-"user" namespaces
+                 will now fail with EOPNOTSUPP instead of ENOATTR
+                 on Mac OS X. This behaviour is like Linux.          
 
 1.07 2007-12-15
 

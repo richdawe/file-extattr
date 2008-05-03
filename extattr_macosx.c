@@ -30,14 +30,20 @@ macosx_setxattr (const char *path,
 
   if (!File_ExtAttr_valid_default_namespace(flags))
   {
-    errno = ENOATTR;
+    errno = EOPNOTSUPP;
+    ret = -errno;
     ok = 0;
   }
 
-  if (ok)
+  if (ok) {
     ret = setxattr(path, attrname, attrvalue, slen, 0, xflags);
+    if (ret < 0) {
+      ret = -errno;
+      ok = 0;
+    }
+  }
 
-  return ok ? ret : -1;
+  return ret;
 }
 
 int
@@ -62,14 +68,20 @@ macosx_fsetxattr (const int fd,
 
   if (!File_ExtAttr_valid_default_namespace(flags))
   {
-    errno = ENOATTR;
+    errno = EOPNOTSUPP;
+    ret = -errno;
     ok = 0;
   }
 
-  if (ok)
+  if (ok) {
     ret = fsetxattr(fd, attrname, attrvalue, slen, 0, xflags);
+    if (ret < 0) {
+      ret = -errno;
+      ok = 0;
+    }
+  }
 
-  return ok ? ret : -1;
+  return ret;
 }
 
 int
@@ -85,14 +97,20 @@ macosx_getxattr (const char *path,
 
   if (!File_ExtAttr_valid_default_namespace(flags))
   {
-    errno = ENOATTR;
+    errno = EOPNOTSUPP;
+    ret = -errno;
     ok = 0;
   }
 
-  if (ok)
+  if (ok) {
     ret = getxattr(path, attrname, attrvalue, slen, 0, xflags);
+    if (ret < 0) {
+      ret = -errno;
+      ok = 0;
+    }
+  }
 
-  return ok ? ret : - 1;
+  return ret;
 }
 
 int
@@ -108,14 +126,20 @@ macosx_fgetxattr (const int fd,
 
   if (!File_ExtAttr_valid_default_namespace(flags))
   {
-    errno = ENOATTR;
+    errno = EOPNOTSUPP;
+    ret = -errno;
     ok = 0;
   }
 
-  if (ok)
+  if (ok) {
     ret = fgetxattr(fd, attrname, attrvalue, slen, 0, xflags);
+    if (ret < 0) {
+      ret = -errno;
+      ok = 0;
+    }
+  }
 
-  return ok ? ret : -1;
+  return ret;
 }
 
 int
@@ -129,14 +153,20 @@ macosx_removexattr (const char *path,
 
   if (!File_ExtAttr_valid_default_namespace(flags))
   {
-    errno = ENOATTR;
+    errno = EOPNOTSUPP;
+    ret = -errno;
     ok = 0;
   }
 
-  if (ok)
+  if (ok) {
     ret = removexattr(path, attrname, xflags);
+    if (ret < 0) {
+      ret = -errno;
+      ok = 0;
+    }
+  }
 
-  return ok ? ret : -1;
+  return ret;
 }
 
 int
@@ -150,14 +180,20 @@ macosx_fremovexattr (const int fd,
 
   if (!File_ExtAttr_valid_default_namespace(flags))
   {
-    errno = ENOATTR;
+    errno = EOPNOTSUPP;
+    ret = -errno;
     ok = 0;
   }
 
-  if (ok)
+  if (ok) {
     ret = fremovexattr(fd, attrname, xflags);
+    if (ret < 0) {
+      ret = -errno;
+      ok = 0;
+    }
+  }
 
-  return ok ? ret : -1;
+  return ret;
 }
 
 ssize_t
@@ -171,14 +207,20 @@ macosx_listxattr (const char *path,
 
   if (!File_ExtAttr_valid_default_namespace(flags))
   {
-    errno = ENOATTR;
+    errno = EOPNOTSUPP;
+    ret = -errno;
     ok = 0;
   }
 
-  if (ok)
+  if (ok) {
     ret = listxattr(path, buf, buflen, 0 /* XXX: flags? */);
+    if (ret < 0) {
+      ret = -errno;
+      ok = 0;
+    }
+  }
 
-  return ok ? ret : -1;
+  return ret;
 }
 
 ssize_t
@@ -192,14 +234,20 @@ macosx_flistxattr (const int fd,
 
   if (!File_ExtAttr_valid_default_namespace(flags))
   {
-    errno = ENOATTR;
+    errno = EOPNOTSUPP;
+    ret = -errno;
     ok = 0;
   }
 
-  if (ok)
+  if (ok) {
     ret = flistxattr(fd, buf, buflen, 0 /* XXX: flags? */);
+    if (ret < 0) {
+      ret = -errno;
+      ok = 0;
+    }
+  }
 
-  return ok ? ret : -1;
+  return ret;
 }
 
 ssize_t
@@ -210,8 +258,11 @@ macosx_listxattrns (const char *path,
 {
   ssize_t ret = listxattr(path, NULL, 0, 0 /* XXX: flags? */);
 
-  if (ret > 0)
+  if (ret > 0) {
     ret = File_ExtAttr_default_listxattrns(buf, buflen);
+  } else if (ret < 0) {
+    ret = -errno;
+  }
 
   return ret;
 }
@@ -224,8 +275,11 @@ macosx_flistxattrns (const int fd,
 {
   ssize_t ret = flistxattr(fd, NULL, 0, 0 /* XXX: flags? */);
 
-  if (ret > 0)
+  if (ret > 0) {
     ret = File_ExtAttr_default_listxattrns(buf, buflen);
+  } else if (ret < 0) {
+    ret = -errno;
+  }
 
   return ret;
 }
