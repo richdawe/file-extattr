@@ -20,7 +20,7 @@ Revision history for Perl extension File::ExtAttr.
                  system calls is propagated into $! (#32679, #32680).
 
                  XXX: This is incomplete:
-                 - Test on FreeBSD, Solaris.
+                 - Test on Solaris.
                  - Make sure I've actually addressed API concerns in #32670.
 
     - (richdawe) File::ExtAttr no longer generate noisy warnings
@@ -29,7 +29,7 @@ Revision history for Perl extension File::ExtAttr.
 
     - (richdawe) Operations with non-default or non-"user" namespaces
                  will now fail with EOPNOTSUPP instead of ENOATTR
-                 on Mac OS X. This behaviour is like Linux.          
+                 on Mac OS X and *BSD. This behaviour is like Linux.          
 
 1.07 2007-12-15
 

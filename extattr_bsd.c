@@ -57,19 +57,13 @@ valid_namespace (struct hv *flags, int *pattrnamespace)
 static inline int
 bsd_extattr_set_succeeded (const int expected, const int actual)
 {
-  int ret = -1;
+  int ret = 0;
 
-  if (actual != -1)
-  {
-    if (actual != expected)
-    {
-      errno = ENOBUFS; /* Pretend there's not enough space for the data. */
-      ret = -1;
-    }
-    else
-    { 
-      ret = 0;
-    }
+  if (actual == -1) {
+    ret = -errno;
+  } else if (actual != expected) {
+    /* Pretend there's not enough space for the data. */
+    ret = -ENOBUFS;
   }
 
   return ret;
@@ -83,16 +77,14 @@ bsd_setxattr (const char *path,
 	      struct hv *flags)
 {
   int attrnamespace = -1;
-  int ok = 1;
-  int ret = -1;
+  int ret = 0;
 
   if (!valid_namespace(flags, &attrnamespace))
   {
-    errno = ENOATTR;
-    ok = 0;
+    ret = -EOPNOTSUPP;
   }
 
-  if (ok)
+  if (ret == 0)
   {
     File_ExtAttr_setflags_t setflags = File_ExtAttr_flags2setflags(flags);
     switch (setflags)
@@ -113,21 +105,20 @@ bsd_setxattr (const char *path,
 	if (sz >= 0)
 	{
 	  /* Attribute already exists => fail. */
-	  errno = EEXIST;
-	  ok = 0;
+	  ret = -EEXIST;
 	}
       }
       break;
     }
   }
 
-  if (ok)
+  if (ret == 0)
   {
     ret = extattr_set_file(path, attrnamespace, attrname, attrvalue, slen);
     ret = bsd_extattr_set_succeeded(slen, ret);
   }
 
-  return ok ? ret : -1;
+  return ret;
 }
 
 int
@@ -138,16 +129,14 @@ bsd_fsetxattr (const int fd,
 	       struct hv *flags)
 {
   int attrnamespace = -1;
-  int ok = 1;
-  int ret = -1;
+  int ret = 0;
 
   if (!valid_namespace(flags, &attrnamespace))
   {
-    errno = ENOATTR;
-    ok = 0;
+    ret = -EOPNOTSUPP;
   }
 
-  if (ok)
+  if (ret == 0)
   {
     File_ExtAttr_setflags_t setflags = File_ExtAttr_flags2setflags(flags);
     switch (setflags)
@@ -168,15 +157,14 @@ bsd_fsetxattr (const int fd,
 	if (sz >= 0)
 	{
 	  /* Attribute already exists => fail. */
-	  errno = EEXIST;
-	  ok = 0;
+	  ret = -EEXIST;
 	}
       }
       break;
     }
   }
 
-  if (ok)
+  if (ret == 0)
   {
     ret = extattr_set_fd(fd, attrnamespace, attrname, attrvalue, slen);
     ret = bsd_extattr_set_succeeded(slen, ret);
@@ -193,19 +181,21 @@ bsd_getxattr (const char *path,
 	      struct hv *flags)
 {
   int attrnamespace = -1;
-  int ok = 1;
-  int ret = -1;
+  int ret = 0;
 
   if (!valid_namespace(flags, &attrnamespace))
   {
-    errno = ENOATTR;
-    ok = 0;
+    ret = -EOPNOTSUPP;
   }
 
-  if (ok)
+  if (ret == 0) {
     ret = extattr_get_file(path, attrnamespace, attrname, attrvalue, slen);
+    if (ret < 0) {
+      ret = -errno;
+    }
+  }
 
-  return ok ? ret : -1;
+  return ret;
 }
 
 int
@@ -216,19 +206,21 @@ bsd_fgetxattr (const int fd,
 	       struct hv *flags)
 {
   int attrnamespace = -1;
-  int ok = 1;
-  int ret = -1;
+  int ret = 0;
 
   if (!valid_namespace(flags, &attrnamespace))
   {
-    errno = ENOATTR;
-    ok = 0;
+    ret = -EOPNOTSUPP;
   }
 
-  if (ok)
+  if (ret == 0) {
     ret = extattr_get_fd(fd, attrnamespace, attrname, attrvalue, slen);
+    if (ret < 0) {
+      ret = -errno;
+    }
+  }
 
-  return ok ? ret : -1;
+  return ret;
 }
 
 int
@@ -237,19 +229,21 @@ bsd_removexattr (const char *path,
 		 struct hv *flags)
 {
   int attrnamespace = -1;
-  int ok = 1;
-  int ret = -1;
+  int ret = 0;
 
   if (!valid_namespace(flags, &attrnamespace))
   {
-    errno = ENOATTR;
-    ok = 0;
+    ret = -EOPNOTSUPP;
   }
 
-  if (ok)
+  if (ret == 0) {
     ret = extattr_delete_file(path, attrnamespace, attrname);
+    if (ret < 0) {
+      ret = -errno;
+    }
+  }
 
-  return ok ? ret : -1;
+  return ret;
 }
 
 int
@@ -258,19 +252,21 @@ bsd_fremovexattr (const int fd,
 		  struct hv *flags)
 {
   int attrnamespace = -1;
-  int ok = 1;
-  int ret = -1;
+  int ret = 0;
 
   if (!valid_namespace(flags, &attrnamespace))
   {
-    errno = ENOATTR;
-    ok = 0;
+    ret = -EOPNOTSUPP;
   }
 
-  if (ok)
+  if (ret == 0) {
     ret = extattr_delete_fd(fd, attrnamespace, attrname);
+    if (ret < 0) {
+      ret = -errno;
+    }
+  }
 
-  return ok ? ret : -1;
+  return ret;
 }
 
 /* Convert the BSD-style list to a nul-separated list. */
@@ -296,16 +292,14 @@ bsd_listxattr (const char *path,
 	       struct hv *flags)
 {
   int attrnamespace = -1;
-  int ok = 1;
-  ssize_t ret;
+  ssize_t ret = 0;
 
   if (!valid_namespace(flags, &attrnamespace))
   {
-    errno = ENOATTR;
-    ok = 0;
+    ret = -EOPNOTSUPP;
   }
 
-  if (ok)
+  if (ret == 0)
   {
     ret = extattr_list_file(path,
 			    attrnamespace,
@@ -315,9 +309,13 @@ bsd_listxattr (const char *path,
 
     if (buflen && (ret > 0))
       reformat_list(buf, ret);
+
+    if (ret < 0) {
+      ret = -errno;
+    }
   }
 
-  return ok ? ret : -1;
+  return ret;
 }
 
 ssize_t
@@ -327,16 +325,14 @@ bsd_flistxattr (const int fd,
 		struct hv *flags)
 {
   int attrnamespace = -1;
-  int ok = 1;
-  ssize_t ret;
+  ssize_t ret = 0;
 
   if (!valid_namespace(flags, &attrnamespace))
   {
-    errno = ENOATTR;
-    ok = 0;
+    ret = -EOPNOTSUPP;
   }
 
-  if (ok)
+  if (ret == 0)
   {
     ret = extattr_list_fd(fd,
 			  attrnamespace,
@@ -346,9 +342,13 @@ bsd_flistxattr (const int fd,
 
     if (buflen && (ret > 0))
       reformat_list(buf, ret);
+
+    if (ret < 0) {
+      ret = -errno;
+    }
   }
 
-  return ok ? ret : -1;
+  return ret;
 }
 
 static ssize_t
@@ -356,7 +356,7 @@ listxattrns (char *buf, const size_t buflen,
 	     const int iHasUser, const int iHasSystem)
 {
   size_t len = 0;
-  int ret;
+  ssize_t ret = 0;
 
   if (iHasUser)
     len += sizeof(NAMESPACE_USER);
@@ -386,8 +386,7 @@ listxattrns (char *buf, const size_t buflen,
   }
   else
   {
-    errno = ERANGE;
-    ret = -1;
+    ret = -ERANGE;
   }
 
   return ret;
@@ -401,7 +400,7 @@ bsd_listxattrns (const char *path,
 {
   int iHasUser = 0;
   int iHasSystem = 0;
-  ssize_t ret;
+  ssize_t ret = 0;
 
   ret = extattr_list_file(path, EXTATTR_NAMESPACE_USER, NULL, 0);
   if (ret > 0)
