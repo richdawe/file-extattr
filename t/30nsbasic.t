@@ -78,8 +78,13 @@ foreach ( $filename, $dirname ) {
    is (getfattr($_, "$key", { namespace => 'user' }), undef);
 
    #check user namespace doesn't exist now
-   @ns = listfattrns($_);
-   is (grep(/^user$/, @ns), 0);
+   SKIP: {
+     skip "Unremoveable user attributes prevent testing namespace removal",
+       1 if t::Support::has_system_attrs($_);
+
+     @ns = listfattrns($_);
+     is (grep(/^user$/, @ns), 0);
+   }
 #}
 }
 
@@ -115,8 +120,13 @@ print "# using file descriptor ".$fh->fileno()."\n";
    is (getfattr($fh, "$key", { namespace => 'user' }), undef);
 
    #check user namespace doesn't exist now
-   @ns = listfattrns($fh);
-   is (grep(/^user$/, @ns), 0);
+   SKIP: {
+     skip "Unremoveable user attributes prevent testing namespace removal",
+       1 if t::Support::has_system_attrs($fh);
+
+     @ns = listfattrns($fh);
+     is (grep(/^user$/, @ns), 0);
+   }
 #}
 #print STDERR "done\n";
 #<STDIN>;

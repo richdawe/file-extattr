@@ -1,6 +1,6 @@
 Revision history for Perl extension File::ExtAttr.
 
-1.08 2008-??-??
+1.08 2008-08-19
 
     - (richdawe) Add a typemap for usage of "const char *" in the XS.
                  This may help fix the build with Perl 5.6.x or earlier.
@@ -19,17 +19,18 @@ Revision history for Perl extension File::ExtAttr.
     - (richdawe) Make sure that the errno value from any failed
                  system calls is propagated into $! (#32679, #32680).
 
-                 XXX: This is incomplete:
-                 - Test on Solaris.
-                 - Make sure I've actually addressed API concerns in #32670.
-
     - (richdawe) File::ExtAttr no longer generate noisy warnings
                  when an xattr system call fails. All error reporting
                  is now via the function return values and $!.
 
     - (richdawe) Operations with non-default or non-"user" namespaces
                  will now fail with EOPNOTSUPP instead of ENOATTR
-                 on Mac OS X and *BSD. This behaviour is like Linux.          
+                 on Mac OS X, *BSD and Solaris. This behaviour
+                 matches the behaviour on Linux.          
+
+    - (richdawe) Added a note to the documentation about Solaris
+                 extensible system attributes, which are different
+                 to extended file attributes.
 
 1.07 2007-12-15
 

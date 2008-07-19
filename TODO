@@ -3,9 +3,7 @@ todo:
 * check that partition supports it, especially in unit test
 * docs, explain user_xattr, mount -o remount
 * change to use section 2 calls instead of section 3
-* for "operation not supported" note must be prefixed with "user"
 * buffer size, reuse buffer?
-* Set $! to errno in xattr operations, for use in FUSE filesystems.
 * symbolic link handling (O_NOFOLLOW on Mac OS X)
 * Check it can be used with Perl 5.6.x
 * Test setting attributes on directories, as suggested at Brum.pm
@@ -25,3 +23,8 @@ todo:
 * Disallow nuls in the attribute names. The list handling will break
   if we allow this. (Alternative is to make the portable listxattr follow
   the BSD API, where the separator is a length byte.)
+
+* Support new extensible system attributes (and its API) on Solaris?
+  See the PSARC referenced in the docs and its fgetattr, etc.
+  implementation.
+

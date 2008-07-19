@@ -63,7 +63,7 @@ foreach ( $filename, $dirname ) {
     
     # Check that the list contains all the attributes.
     my @attrs = listfattr($_);
-    @attrs = sort @attrs;
+    @attrs = sort(t::Support::filter_system_attrs(@attrs));
     my @ks = sort keys %vals;
 
     check_attrs(\@attrs, \@ks);
@@ -104,7 +104,7 @@ foreach (keys %vals)
 
 # Check that the list contains all the attributes.
 my @attrs = listfattr($fh);
-@attrs = sort @attrs;
+@attrs = sort(t::Support::filter_system_attrs(@attrs));
 my @ks = sort keys %vals;
 
 check_attrs(\@attrs, \@ks);

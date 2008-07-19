@@ -2,6 +2,7 @@ package t::Support;
 
 use strict;
 use Config;
+use File::ExtAttr qw/listfattr/;
 
 sub should_skip {
   # NetBSD 3.1 and earlier don't support xattrs.
@@ -14,9 +15,35 @@ sub should_skip {
   return 0;
 }
 
-# XXX: Write a function to return expected failure case for missing
-# attribute/etc. depending on platform.
-#/(Operation not supported|No such file or directory|Attribute not found)/
+sub filter_system_attrs
+{
+  my @attrs = @_;
+
+  if ($^O eq 'solaris')
+  {
+    # Filter out container for extensible system attributes on Solaris.
+    @attrs = grep { ! /^SUNWattr_r[ow]$/ } @attrs;
+  }
+  return @attrs;
+}
+
+# Check to see whether the file has unremovable system attributes.
+sub has_system_attrs
+{
+  my ($h) = @_;
+  my $ret = 0;
+
+  if ($^O eq 'solaris')
+  {
+    my @attrs = listfattr($h);
+    if (scalar(grep { /^SUNWattr_r[ow]$/ } @attrs) > 0)
+    {
+      $ret = 1;
+    }
+  }
+
+  return $ret;
+}
 
 1;
 

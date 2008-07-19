@@ -9,6 +9,7 @@
 
 use strict;
 use Test::More;
+use Data::Dumper;
 
 BEGIN {
   my $tlib = $0;
@@ -20,7 +21,7 @@ use t::Support;
 if (t::Support::should_skip()) {
   plan skip_all => 'Tests unsupported on this OS/filesystem';
 } else {
-  plan tests => 40;
+  plan tests => 42;
 }
 
 use File::Temp qw(tempfile);
@@ -96,8 +97,13 @@ foreach ( $filename, $dirname ) {
    is (getfattr($_, "$key3", { namespace => 'user' }), undef);
 
    #check user namespace doesn't exist now
-   @ns = listfattrns($_);
-   is (grep(/^user$/, @ns), 0);
+   SKIP: {
+     skip "Unremoveable user attributes prevent testing namespace removal",
+       1 if t::Support::has_system_attrs($_);
+
+     @ns = listfattrns($_);
+     is (grep(/^user$/, @ns), 0);
+   }
 #}
 }
 
@@ -144,10 +150,17 @@ print "# using file descriptor ".$fh->fileno()."\n";
 
    #check that it's gone
    is (getfattr($fh, "$key", { namespace => 'user' }), undef);
+   is (getfattr($fh, "$key2", { namespace => 'user' }), undef);
+   is (getfattr($fh, "$key3", { namespace => 'user' }), undef);
 
    #check user namespace doesn't exist now
-   @ns = listfattrns($fh);
-   is (grep(/^user$/, @ns), 0);
+   SKIP: {
+     skip "Unremoveable user attributes prevent testing namespace removal",
+       1 if t::Support::has_system_attrs($fh);
+
+     @ns = listfattrns($fh);
+     is (grep(/^user$/, @ns), 0);
+   }
 #}
 #print STDERR "done\n";
 #<STDIN>;

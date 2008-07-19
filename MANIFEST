@@ -42,6 +42,7 @@ t/32nsnonuser.t
 t/33nslong.t
 t/39nsempty.t
 t/80memleakget.t
+t/81closed.t
 lib/File/ExtAttr.pm
 lib/File/ExtAttr/Tie.pm
 META.yml                                 Module meta-data (added by MakeMaker)

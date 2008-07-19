@@ -28,7 +28,7 @@ writexattr (const int attrfd,
   if (ok && (write(attrfd, attrvalue, slen) != slen))
     ok = 0;
 
-  return ok ? 0 : -1;
+  return ok ? 0 : -errno;
 }
 
 static int
@@ -71,7 +71,7 @@ readclose (const int attrfd,
   if (saved_errno)
     errno = saved_errno;
 
-  return ok ? sz : -1;
+  return ok ? sz : -errno;
 }
 
 static int
@@ -94,7 +94,7 @@ unlinkclose (const int attrdirfd, const char *attrname)
   if (saved_errno)
     errno = saved_errno;
 
-  return ok ? sz : -1;  
+  return ok ? sz : -errno; 
 }
 
 static ssize_t
@@ -109,7 +109,13 @@ listclose (const int attrdirfd, char *buf, const size_t buflen)
     ok = 0;
 
   if (ok)
+  {
     dirp = fdopendir(attrdirfd);
+    if (dirp == NULL)
+    {
+      ok = 0;
+    }  
+  }
 
   if (ok)
   {
@@ -128,7 +134,7 @@ listclose (const int attrdirfd, char *buf, const size_t buflen)
 	/* Check for space, then copy directory name + nul into list. */
 	if ((len + namelen + 1) > buflen)
 	{
-	  errno = ERANGE;
+	  saved_errno = errno = ERANGE;
 	  ok = 0;
 	  break;
 	}
@@ -157,7 +163,7 @@ listclose (const int attrdirfd, char *buf, const size_t buflen)
   if (saved_errno)
     errno = saved_errno;
 
-  return ok ? len : -1;
+  return ok ? len : -errno;
 }
 
 static int
@@ -171,7 +177,13 @@ hasattrclose (const int attrdirfd)
     ret = -1;
 
   if (ret >= 0)
+  {
     dirp = fdopendir(attrdirfd);
+    if (dirp == NULL)
+    {
+      ret = -1;
+    }
+  }
 
   if (ret >= 0)
   {
@@ -198,7 +210,7 @@ hasattrclose (const int attrdirfd)
   if (saved_errno)
     errno = saved_errno;
 
-  return ret;
+  return (ret >= 0) ? ret : -errno;
 }
 
 int
@@ -225,7 +237,7 @@ solaris_setxattr (const char *path,
 
   if (!File_ExtAttr_valid_default_namespace(flags))
   {
-    errno = ENOATTR;
+    errno = EOPNOTSUPP;
     ok = 0;
   }
 
@@ -245,7 +257,7 @@ solaris_setxattr (const char *path,
   if (saved_errno)
     errno = saved_errno;
 
-  return ok ? 0 : -1;
+  return ok ? 0 : -errno;
 }
 
 int solaris_fsetxattr (const int fd,
@@ -271,7 +283,7 @@ int solaris_fsetxattr (const int fd,
 
   if (!File_ExtAttr_valid_default_namespace(flags))
   {
-    errno = ENOATTR;
+    errno = EOPNOTSUPP;
     ok = 0;
   }
 
@@ -291,7 +303,7 @@ int solaris_fsetxattr (const int fd,
   if (saved_errno)
     errno = saved_errno;
 
-  return ok ? 0 : -1;
+  return ok ? 0 : -errno;
 }
 
 int
@@ -306,14 +318,14 @@ solaris_getxattr (const char *path,
 
   if (!File_ExtAttr_valid_default_namespace(flags))
   {
-    errno = ENOATTR;
+    errno = EOPNOTSUPP;
     ok = 0;
   }
 
   if (ok)
     attrfd = attropen(path, attrname, O_RDONLY);
 
-  return ok ? readclose(attrfd, attrvalue, slen) : -1;
+  return ok ? readclose(attrfd, attrvalue, slen) : -errno;
 }
 
 int
@@ -328,14 +340,14 @@ solaris_fgetxattr (const int fd,
 
   if (!File_ExtAttr_valid_default_namespace(flags))
   {
-    errno = ENOATTR;
+    errno = EOPNOTSUPP;
     ok = 0;
   }
 
   if (ok)
     attrfd = openat(fd, attrname, O_RDONLY|O_XATTR);
 
-  return ok ? readclose(attrfd, attrvalue, slen) : -1;
+  return ok ? readclose(attrfd, attrvalue, slen) : -errno;
 }
 
 int
@@ -348,14 +360,14 @@ solaris_removexattr (const char *path,
 
   if (!File_ExtAttr_valid_default_namespace(flags))
   {
-    errno = ENOATTR;
+    errno = EOPNOTSUPP;
     ok = 0;
   }
 
   if (ok)
     attrdirfd = attropen(path, ".", O_RDONLY);
 
-  return ok ? unlinkclose(attrdirfd, attrname) : -1;
+  return ok ? unlinkclose(attrdirfd, attrname) : -errno;
 }
 
 int
@@ -368,14 +380,14 @@ solaris_fremovexattr (const int fd,
 
   if (!File_ExtAttr_valid_default_namespace(flags))
   {
-    errno = ENOATTR;
+    errno = EOPNOTSUPP;
     ok = 0;
   }
 
   if (ok)
     attrdirfd = openat(fd, ".", O_RDONLY|O_XATTR);
 
-  return ok ? unlinkclose(attrdirfd, attrname) : -1;
+  return ok ? unlinkclose(attrdirfd, attrname) : -errno;
 }
 
 ssize_t

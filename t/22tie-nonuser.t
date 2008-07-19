@@ -43,6 +43,7 @@ foreach ( $filename, $dirname ) {
 
     # Check there are no user extattrs.
     @ks = keys(%extattr);
+    @ks = t::Support::filter_system_attrs(@ks);
     ok(scalar(@ks) == 0);
 
     # Test multiple attributes.
@@ -91,6 +92,7 @@ foreach ( $filename, $dirname ) {
 
     # Check there are only our extattrs.
     @ks = keys(%extattr);
+    @ks = t::Support::filter_system_attrs(@ks);
     ok(scalar(@ks) == 0);
     print '# '.join(' ', @ks)."\n";
 }

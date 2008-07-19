@@ -416,6 +416,14 @@ L<http://docsun.cites.uiuc.edu/sun_docs/C/solaris_9/SUNWaman/hman3c/attropen.3c.
 
 L<http://docsun.cites.uiuc.edu/sun_docs/C/solaris_9/SUNWaman/hman5/fsattr.5.html>
 
+Solaris also has extensible system attributes, which are used
+by Solaris's CIFS support on ZFS, and have a confusingly similar
+name to extended file attributes. These system attributes are stored
+in extended file attributes called SUNWattr_ro and SUNWattr_rw.
+See PSARC 2007/315 for more details:
+
+L<http://opensolaris.org/os/community/arc/caselog/2007/315/spec-final-txt/>
+
 =back
 
 =head1 AUTHOR
