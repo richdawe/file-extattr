@@ -1,4 +1,4 @@
-File-ExtAttr version 1.08
+File-ExtAttr version 1.09
 =========================
 
 File::ExtAttr is a Perl module providing access to the extended attributes
@@ -40,6 +40,12 @@ use a different file system, e.g.:
   make test
 
 DEPENDENCIES
+
+On Linux, you will need to install the package that provides
+the header files <attr/attributes.h> and <attr/xattr.h>. On Fedora
+you can install these as follows:
+
+  yum -y install libattr-devel
 
 This module requires these other modules:
 

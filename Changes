@@ -1,5 +1,11 @@
 Revision history for Perl extension File::ExtAttr.
 
+1.09 2008-??-??
+
+    - (richdawe) Add note to README about needing to install
+                 package that provides the headers <attr/attributes.h>
+                 and <attr/xattr.h>.
+
 1.08 2008-08-19
 
     - (richdawe) Add a typemap for usage of "const char *" in the XS.
