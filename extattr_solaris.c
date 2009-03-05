@@ -171,7 +171,7 @@ hasattrclose (const int attrdirfd)
 {
   int saved_errno = 0;
   int ret = 0; /* Not by default */
-  DIR *dirp;
+  DIR *dirp = NULL;
 
   if (attrdirfd == -1)
     ret = -1;
