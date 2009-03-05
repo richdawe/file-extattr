@@ -9,6 +9,7 @@
 
 use strict;
 use Test::More;
+use Config;
 
 BEGIN {
   my $tlib = $0;
@@ -19,6 +20,8 @@ use t::Support;
 
 if (t::Support::should_skip()) {
   plan skip_all => 'Tests unsupported on this OS/filesystem';
+} elsif (($Config{osname} eq 'darwin') && ($Config{osvers} =~ m/^[0-8]\./)) {
+  plan skip_all => "Mac OS X 10.4 and earlier don't support empty values";
 } else {
   plan tests => 12;
 }

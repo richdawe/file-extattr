@@ -1,10 +1,17 @@
 Revision history for Perl extension File::ExtAttr.
 
-1.09 2009-03-05
+1.09 2009-03-??
 
     - (richdawe) Add note to README about needing to install
                  package that provides the headers <attr/attributes.h>
                  and <attr/xattr.h>.
+
+    - (richdawe) Fix RT #31970: "OS X: setfattr fails to set empty value".
+                 According to the CPAN Testers results, this works
+                 on Mac OS X 10.5.
+
+                 Skip the "empty" tests on Mac OS X 10.4 and earlier.
+                 Document issue.
 
     - (richdawe) Fix RT #37889: "Crash when operating on a closed file handle
                  on Solaris". This was due to using an uninitialised

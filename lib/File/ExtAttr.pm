@@ -348,6 +348,11 @@ and C<listfattr> be exported using the tag ":all".
 
 None
 
+=head1 BUGS
+
+You cannot set empty attributes on Mac OS X 10.4 and earlier.
+This is a bug in Darwin, rather than File::ExtAttr.
+
 =head1 SEE ALSO
 
 The latest version of this software should be available from its
