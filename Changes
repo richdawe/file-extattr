@@ -1,6 +1,6 @@
 Revision history for Perl extension File::ExtAttr.
 
-1.09 2009-03-??
+1.09 2009-03-07
 
     - (richdawe) Add note to README about needing to install
                  package that provides the headers <attr/attributes.h>
@@ -12,6 +12,13 @@ Revision history for Perl extension File::ExtAttr.
 
                  Skip the "empty" tests on Mac OS X 10.4 and earlier.
                  Document issue.
+
+    - (richdawe) Fix #34394: "Test suite should skip on filesystems
+                 with no xattr support when run non-interactively"
+                 on Linux.
+
+                 When run interactively, it will suggest what you need
+                 to do, to get the test suite to pass.
 
     - (richdawe) Fix RT #37889: "Crash when operating on a closed file handle
                  on Solaris". This was due to using an uninitialised
