@@ -1,0 +1,13 @@
+#!/bin/sh
+
+SCRIPTSDIR=`dirname $0`
+. $SCRIPTSDIR/options-test-fs
+
+set -e
+set -x
+
+sudo umount $MOUNTPOINT || true
+dd if=/dev/zero of=$IMAGE bs=1024 count=102400
+/sbin/mkfs.ext2 -F -L $LABEL $IMAGE
+mkdir -p $MOUNTPOINT
+sudo mount -o loop,user_xattr -t ext2 $IMAGE $MOUNTPOINT

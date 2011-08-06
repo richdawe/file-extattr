@@ -1,0 +1,12 @@
+#!/bin/sh
+
+SCRIPTSDIR=`dirname $0`
+. $SCRIPTSDIR/options-test-fs
+
+set -e
+set -x
+
+sudo umount $MOUNTPOINT
+rmdir $MOUNTPOINT
+rm -f $IMAGE
+

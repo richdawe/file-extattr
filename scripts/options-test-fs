@@ -1,0 +1,3 @@
+IMAGE=image.ext2
+LABEL=file-extattr
+MOUNTPOINT=ext2-test-filesystem
