@@ -178,7 +178,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw(
 );
 
-our $VERSION = '1.09';
+our $VERSION = '1.10';
 
 #this is used by getxattr(), needs documentation
 $File::ExtAttr::MAX_INITIAL_VALUELEN = 255;
@@ -251,6 +251,13 @@ If the attribute could not be set, a warning is issued.
 
 Note that C<create> cannot be implemented in a race-free manner on *BSD.
 If your code relies on the C<create> behaviour, it may be insecure on *BSD.
+
+Note that there is a bug in Linux's ext4 filesystem that prevents
+the C<create> option from working correctly. On ext4 filesystems,
+C<create> will not prevent pre-existing attributes from being overwritten.
+This bug was found in April 2011. See
+L<http://www.spinics.net/lists/linux-fsdevel/msg43989.html> for more details.
+This bug may be fixed in Linux 2.6.39 or 3.0.
 
 =cut
 
@@ -441,7 +448,7 @@ Richard Dawe, E<lt>richdawe@cpan.orgE<gt>
 
 Copyright (C) 2005 by Kevin M. Goess
 
-Copyright (C) 2005, 2006, 2007, 2008 by Richard Dawe
+Copyright (C) 2005, 2006, 2007, 2008, 2009, 2011 by Richard Dawe
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.5 or,

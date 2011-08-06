@@ -1,6 +1,6 @@
 # http://module-build.sourceforge.net/META-spec.html
 name:         File-ExtAttr
-version:      1.09
+version:      1.10
 version_from: lib/File/ExtAttr.pm
 installdirs:  site
 requires:
