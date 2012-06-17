@@ -1,5 +1,10 @@
 Revision history for Perl extension File::ExtAttr.
 
+1.10 2012-??-??
+
+    - (richdawe) The source code is now stored a Github:
+                 <http://sourceforge.net/projects/file-extattr/>
+
 1.09 2009-03-07
 
     - (richdawe) Add note to README about needing to install

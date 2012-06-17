@@ -365,6 +365,9 @@ This is a bug in Darwin, rather than File::ExtAttr.
 The latest version of this software should be available from its
 home page: L<http://sourceforge.net/projects/file-extattr/>
 
+The source code is available from Github:
+L<https://github.com/richdawe/file-extattr>
+
 L<OS2::ExtAttr> provides access to extended attributes on OS/2.
 
 Eiciel, L<http://rofi.pinchito.com/eiciel/>, is an access control list (ACL)
