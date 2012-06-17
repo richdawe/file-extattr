@@ -1,0 +1,7 @@
+Need to mount with user_xattr on Ubuntu
+Need to doc this somewhere
+mount -o remount,rw,errors=remount-ro,commit=0,user_xattr /
+
+Kernel bug that may prevent tests from completing properly --
+ext4 + XATTR_* fails
+http://www.spinics.net/lists/linux-fsdevel/msg43989.html

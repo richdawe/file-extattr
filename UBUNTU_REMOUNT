@@ -1,0 +1,1 @@
+mount -o remount,rw,errors=remount-ro,commit=0,user_xattr /
