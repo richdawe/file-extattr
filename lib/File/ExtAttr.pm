@@ -451,7 +451,7 @@ Richard Dawe, E<lt>richdawe@cpan.orgE<gt>
 
 Copyright (C) 2005 by Kevin M. Goess
 
-Copyright (C) 2005, 2006, 2007, 2008, 2009, 2011 by Richard Dawe
+Copyright (C) 2005, 2006, 2007, 2008, 2009, 2011, 2012 by Richard Dawe
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.5 or,
