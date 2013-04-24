@@ -41,9 +41,12 @@ use a different file system, e.g.:
 
 DEPENDENCIES
 
-On Linux, you will need to install the package that provides
-the header files <attr/attributes.h> and <attr/xattr.h>. On Fedora
-you can install these as follows:
+On Linux, you will need to have the C library dev packages installed.
+On Debian this is libc6-dev. This should provide a header at <sys/xattr.h>.
+If your C library doesn't support xattrs, you will need to install the package
+that provides the header files <attr/attributes.h> and <attr/xattr.h>. 
+On Debian this is libattr1-dev.
+On Fedora you can install these as follows:
 
   yum -y install libattr-devel
 
