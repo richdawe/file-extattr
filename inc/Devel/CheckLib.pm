@@ -1,18 +1,21 @@
-# $Id: CheckLib.pm,v 1.1 2008/02/24 10:17:48 richdawe Exp $
+# $Id: CheckLib.pm,v 1.25 2008/10/27 12:16:23 drhyde Exp $
 
-package Devel::CheckLib;
+package #
+Devel::CheckLib;
 
+use 5.00405; #postfix foreach
 use strict;
 use vars qw($VERSION @ISA @EXPORT);
-$VERSION = '0.3';
-use Config;
+$VERSION = '0.99';
+use Config qw(%Config);
+use Text::ParseWords 'quotewords';
 
 use File::Spec;
 use File::Temp;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw(assert_lib check_lib_or_exit);
+@EXPORT = qw(assert_lib check_lib_or_exit check_lib);
 
 # localising prevents the warningness leaking out of this module
 local $^W = 1;    # use warnings is a 5.6-ism
@@ -26,34 +29,55 @@ Devel::CheckLib - check that a library is available
 =head1 DESCRIPTION
 
 Devel::CheckLib is a perl module that checks whether a particular C
-library is available, and dies if it is not.
+library and its headers are available.
 
 =head1 SYNOPSIS
 
-    # in a Makefile.PL or Build.PL
-    use lib qw(inc);
     use Devel::CheckLib;
 
-    check_lib_or_exit( lib => 'jpeg' );
+    check_lib_or_exit( lib => 'jpeg', header => 'jpeglib.h' );
     check_lib_or_exit( lib => [ 'iconv', 'jpeg' ] );
   
     # or prompt for path to library and then do this:
     check_lib_or_exit( lib => 'jpeg', libpath => $additional_path );
 
+=head1 USING IT IN Makefile.PL or Build.PL
+
+If you want to use this from Makefile.PL or Build.PL, do
+not simply copy the module into your distribution as this may cause
+problems when PAUSE and search.cpan.org index the distro.  Instead, use
+the use-devel-checklib script.
+
 =head1 HOW IT WORKS
 
-You pass named parameters to a function
-describing how to build and link to the library.  Currently the only
-parameter supported is 'lib', which can be a string or an arrayref of
-several libraries.  In the future, expect us to add something for
-checking that header files are available as well.
+You pass named parameters to a function, describing to it how to build
+and link to the libraries.
 
-It works by trying to compile this:
+It works by trying to compile some code - which defaults to this:
 
     int main(void) { return 0; }
 
 and linking it to the specified libraries.  If something pops out the end
-which looks executable, then we know that it worked.
+which looks executable, it gets executed, and if main() returns 0 we know
+that it worked.  That tiny program is
+built once for each library that you specify, and (without linking) once
+for each header file.
+
+If you want to check for the presence of particular functions in a
+library, or even that those functions return particular results, then
+you can pass your own function body for main() thus:
+
+    check_lib_or_exit(
+        function => 'foo();if(libversion() > 5) return 0; else return 1;'
+        incpath  => ...
+        libpath  => ...
+        lib      => ...
+        header   => ...
+    );
+
+In that case, it will fail to build if either foo() or libversion() don't
+exist, and main() will return the wrong value if libversion()'s return
+value isn't what you want.
 
 =head1 FUNCTIONS
 
@@ -62,23 +86,64 @@ To avoid exporting them, C<use Devel::CheckLib ()>.
 
 =head2 assert_lib
 
-Takes several named parameters.
+This takes several named parameters, all of which are optional, and dies
+with an error message if any of the libraries listed can
+not be found.  B<Note>: dying in a Makefile.PL or Build.PL may provoke
+a 'FAIL' report from CPAN Testers' automated smoke testers.  Use 
+C<check_lib_or_exit> instead.
 
-The value of C<lib> must be either a string with the name of a single 
+The named parameters are:
+
+=over
+
+=item lib
+
+Must be either a string with the name of a single 
 library or a reference to an array of strings of library names.  Depending
 on the compiler found, library names will be fed to the compiler either as
 C<-l> arguments or as C<.lib> file names.  (E.g. C<-ljpeg> or C<jpeg.lib>)
 
-Likewise, C<libpath> must if provided either be a string or an array of strings
+=item libpath
+
+a string or an array of strings
 representing additional paths to search for libraries.
 
-C<LIBS> must be a C<ExtUtils::MakeMaker>-style space-seperated list of
+=item LIBS
+
+a C<ExtUtils::MakeMaker>-style space-seperated list of
 libraries (each preceded by '-l') and directories (preceded by '-L').
 
-This will die with an error message if any of the libraries listed can
-not be found.  B<Note>: dying in a Makefile.PL or Build.PL may provoke
-a 'FAIL' report from CPAN Testers' automated smoke testers.  Use 
-C<check_lib_or_exit> instead.
+This can also be supplied on the command-line.
+
+=item debug
+
+If true - emit information during processing that can be used for
+debugging.
+
+=back
+
+And libraries are no use without header files, so ...
+
+=over
+
+=item header
+
+Must be either a string with the name of a single 
+header file or a reference to an array of strings of header file names.
+
+=item incpath
+
+a string or an array of strings
+representing additional paths to search for headers.
+
+=item INC
+
+a C<ExtUtils::MakeMaker>-style space-seperated list of
+incpaths, each preceded by '-I'.
+
+This can also be supplied on the command-line.
+
+=back
 
 =head2 check_lib_or_exit
 
@@ -88,10 +153,15 @@ This is intended for use in Makefile.PL / Build.PL
 when you might want to prompt the user for various paths and
 things before checking that what they've told you is sane.
 
-If a library isn't found, it exits with an exit value of 0 to avoid
+If any library or header is missing, it exits with an exit value of 0 to avoid
 causing a CPAN Testers 'FAIL' report.  CPAN Testers should ignore this
 result -- which is what you want if an external library dependency is not
 available.
+
+=head2 check_lib
+
+This behaves exactly the same as C<assert_lib()> except that it is silent,
+returning false instead of dieing, or true otherwise.
 
 =cut
 
@@ -103,31 +173,115 @@ sub check_lib_or_exit {
     }
 }
 
+sub check_lib {
+    eval 'assert_lib(@_)';
+    return $@ ? 0 : 1;
+}
+
 sub assert_lib {
     my %args = @_;
-    my (@libs, @libpaths);
+    my (@libs, @libpaths, @headers, @incpaths);
 
+    # FIXME: these four just SCREAM "refactor" at me
     @libs = (ref($args{lib}) ? @{$args{lib}} : $args{lib}) 
         if $args{lib};
     @libpaths = (ref($args{libpath}) ? @{$args{libpath}} : $args{libpath}) 
         if $args{libpath};
+    @headers = (ref($args{header}) ? @{$args{header}} : $args{header}) 
+        if $args{header};
+    @incpaths = (ref($args{incpath}) ? @{$args{incpath}} : $args{incpath}) 
+        if $args{incpath};
 
-    # work-a-like for Makefile.PL's "LIBS" argument
-    if(defined($args{LIBS})) {
-        foreach my $arg (split(/\s+/, $args{LIBS})) {
-            die("LIBS argument badly-formed: $arg\n") unless($arg =~ /^-l/i);
-            push @{$arg =~ /^-l/ ? \@libs : \@libpaths}, substr($arg, 2);
+    # work-a-like for Makefile.PL's LIBS and INC arguments
+    # if given as command-line argument, append to %args
+    for my $arg (@ARGV) {
+        for my $mm_attr_key (qw(LIBS INC)) {
+            if (my ($mm_attr_value) = $arg =~ /\A $mm_attr_key = (.*)/x) {
+            # it is tempting to put some \s* into the expression, but the
+            # MM command-line parser only accepts LIBS etc. followed by =,
+            # so we should not be any more lenient with whitespace than that
+                $args{$mm_attr_key} .= " $mm_attr_value";
+            }
         }
     }
 
-    my @cc = _findcc();
-    my($ch, $cfile) = File::Temp::tempfile(
-        'assertlibXXXXXXXX', SUFFIX => '.c', UNLINK => 1
-    );
-    print $ch "int main(void) { return 0; }\n";
-    close($ch);
+    # using special form of split to trim whitespace
+    if(defined($args{LIBS})) {
+        foreach my $arg (split(' ', $args{LIBS})) {
+            die("LIBS argument badly-formed: $arg\n") unless($arg =~ /^-[lLR]/);
+            push @{$arg =~ /^-l/ ? \@libs : \@libpaths}, substr($arg, 2);
+        }
+    }
+    if(defined($args{INC})) {
+        foreach my $arg (split(' ', $args{INC})) {
+            die("INC argument badly-formed: $arg\n") unless($arg =~ /^-I/);
+            push @incpaths, substr($arg, 2);
+        }
+    }
 
+    my ($cc, $ld) = _findcc();
     my @missing;
+    my @wrongresult;
+    my @use_headers;
+
+    # first figure out which headers we can't find ...
+    for my $header (@headers) {
+        push @use_headers, $header;
+        my($ch, $cfile) = File::Temp::tempfile(
+            'assertlibXXXXXXXX', SUFFIX => '.c'
+        );
+        my $ofile = $cfile;
+        $ofile =~ s/\.c$/$Config{_o}/;
+        print $ch qq{#include <$_>\n} for @use_headers;
+        print $ch qq{int main(void) { return 0; }\n};
+        close($ch);
+        my $exefile = File::Temp::mktemp( 'assertlibXXXXXXXX' ) . $Config{_exe};
+        my @sys_cmd;
+        # FIXME: re-factor - almost identical code later when linking
+        if ( $Config{cc} eq 'cl' ) {                 # Microsoft compiler
+            require Win32;
+            @sys_cmd = (
+                @$cc,
+                $cfile,
+                "/Fe$exefile",
+                (map { '/I'.Win32::GetShortPathName($_) } @incpaths),
+		"/link",
+		@$ld
+            );
+        } elsif($Config{cc} =~ /bcc32(\.exe)?/) {    # Borland
+            @sys_cmd = (
+                @$cc,
+                @$ld,
+                (map { "-I$_" } @incpaths),
+                "-o$exefile",
+                $cfile
+            );
+        } else { # Unix-ish: gcc, Sun, AIX (gcc, cc), ...
+            @sys_cmd = (
+                @$cc,
+                @$ld,
+                $cfile,
+                (map { "-I$_" } @incpaths),
+                "-o", "$exefile"
+            );
+        }
+        warn "# @sys_cmd\n" if $args{debug};
+        my $rv = $args{debug} ? system(@sys_cmd) : _quiet_system(@sys_cmd);
+        push @missing, $header if $rv != 0 || ! -x $exefile;
+        _cleanup_exe($exefile);
+        unlink $ofile if -e $ofile;
+        unlink $cfile;
+    } 
+
+    # now do each library in turn with headers
+    my($ch, $cfile) = File::Temp::tempfile(
+        'assertlibXXXXXXXX', SUFFIX => '.c'
+    );
+    my $ofile = $cfile;
+    $ofile =~ s/\.c$/$Config{_o}/;
+    print $ch qq{#include <$_>\n} foreach (@headers);
+    print $ch "int main(void) { ".($args{function} || 'return 0;')." }\n";
+    close($ch);
     for my $lib ( @libs ) {
         my $exefile = File::Temp::mktemp( 'assertlibXXXXXXXX' ) . $Config{_exe};
         my @sys_cmd;
@@ -136,26 +290,54 @@ sub assert_lib {
             my @libpath = map { 
                 q{/libpath:} . Win32::GetShortPathName($_)
             } @libpaths; 
-            @sys_cmd = (@cc, $cfile, "${lib}.lib", "/Fe$exefile", 
-                        "/link", @libpath
-            );   
+            # this is horribly sensitive to the order of arguments
+            @sys_cmd = (
+                @$cc,
+                $cfile,
+                "${lib}.lib",
+                "/Fe$exefile", 
+                (map { '/I'.Win32::GetShortPathName($_) } @incpaths),
+                "/link",
+                @$ld,
+                (map {'/libpath:'.Win32::GetShortPathName($_)} @libpaths),
+            );
+        } elsif($Config{cc} eq 'CC/DECC') {          # VMS
         } elsif($Config{cc} =~ /bcc32(\.exe)?/) {    # Borland
-            my @libpath = map { "-L$_" } @libpaths;
-            @sys_cmd = (@cc, "-o$exefile", "-l$lib", @libpath, $cfile);
+            @sys_cmd = (
+                @$cc,
+                @$ld,
+                "-o$exefile",
+                (map { "-I$_" } @incpaths),
+                (map { "-L$_" } @libpaths),
+                "-l$lib",
+                $cfile);
         } else {                                     # Unix-ish
                                                      # gcc, Sun, AIX (gcc, cc)
-            my @libpath = map { "-L$_" } @libpaths;
-            @sys_cmd = (@cc, $cfile,  "-o", "$exefile", "-l$lib", @libpath);
+            @sys_cmd = (
+                @$cc,
+                @$ld,
+                $cfile,
+                "-o", "$exefile",
+                (map { "-I$_" } @incpaths),
+                (map { "-L$_" } @libpaths),
+                "-l$lib",
+            );
         }
         warn "# @sys_cmd\n" if $args{debug};
         my $rv = $args{debug} ? system(@sys_cmd) : _quiet_system(@sys_cmd);
-        push @missing, $lib if $rv != 0 || ! -x $exefile; 
+        push @missing, $lib if $rv != 0 || ! -x $exefile;
+        my $absexefile = File::Spec->rel2abs($exefile);
+        $absexefile = '"'.$absexefile.'"' if $absexefile =~ m/\s/;
+        push @wrongresult, $lib if $rv == 0 && -x $exefile && system($absexefile) != 0;
+        unlink $ofile if -e $ofile;
         _cleanup_exe($exefile);
     } 
+     unlink $cfile;
 
-    unlink $cfile;
     my $miss_string = join( q{, }, map { qq{'$_'} } @missing );
-    die("Can't build and link to $miss_string\n") if @missing;
+    die("Can't link/include C library $miss_string, aborting.\n") if @missing;
+    my $wrong_string = join( q{, }, map { qq{'$_'} } @wrongresult);
+    die("wrong result: $wrong_string\n") if @wrongresult;
 }
 
 sub _cleanup_exe {
@@ -165,16 +347,37 @@ sub _cleanup_exe {
     unlink $exefile if -f $exefile;
     unlink $ofile if -f $ofile;
     unlink "$exefile\.manifest" if -f "$exefile\.manifest";
+    if ( $Config{cc} eq 'cl' ) {
+        # MSVC also creates foo.ilk and foo.pdb
+        my $ilkfile = $exefile;
+        $ilkfile =~ s/$Config{_exe}$/.ilk/;
+        my $pdbfile = $exefile;
+        $pdbfile =~ s/$Config{_exe}$/.pdb/;
+        unlink $ilkfile if -f $ilkfile;
+        unlink $pdbfile if -f $pdbfile;
+    }
     return
 }
     
+# return ($cc, $ld)
+# where $cc is an array ref of compiler name, compiler flags
+# where $ld is an array ref of linker flags
 sub _findcc {
+    # Need to use $keep=1 to work with MSWin32 backslashes and quotes
+    my $Config_ccflags =  $Config{ccflags};  # use copy so ASPerl will compile
+    my @Config_ldflags = ();
+    for my $config_val ( @Config{qw(ldflags perllibs)} ){
+        push @Config_ldflags, $config_val if ( $config_val =~ /\S/ );
+    }
+    my @ccflags = grep { length } quotewords('\s+', 1, $Config_ccflags||'');
+    my @ldflags = grep { length } quotewords('\s+', 1, @Config_ldflags);
     my @paths = split(/$Config{path_sep}/, $ENV{PATH});
     my @cc = split(/\s+/, $Config{cc});
-    return @cc if -x $cc[0];
+    return ( [ @cc, @ccflags ], \@ldflags ) if -x $cc[0];
     foreach my $path (@paths) {
         my $compiler = File::Spec->catfile($path, $cc[0]) . $Config{_exe};
-        return ($compiler, @cc[1 .. $#cc]) if -x $compiler;
+        return ([ $compiler, @cc[1 .. $#cc], @ccflags ], \@ldflags)
+            if -x $compiler;
     }
     die("Couldn't find your C compiler\n");
 }
@@ -219,17 +422,21 @@ It has been tested with varying degrees on rigourousness on:
 
 =over
 
-=item gcc (on Linux, *BSD, Solaris, Cygwin)
+=item gcc (on Linux, *BSD, Mac OS X, Solaris, Cygwin)
 
 =item Sun's compiler tools on Solaris
 
 =item IBM's tools on AIX
+
+=item SGI's tools on Irix 6.5
 
 =item Microsoft's tools on Windows
 
 =item MinGW on Windows (with Strawberry Perl)
 
 =item Borland's tools on Windows
+
+=item QNX
 
 =back
 
@@ -245,11 +452,13 @@ Bug reports should be made using L<http://rt.cpan.org/> or by email.
 When submitting a bug report, please include the output from running:
 
     perl -V
-    perl -MDevel::CheckLib
+    perl -MDevel::CheckLib -e0
 
 =head1 SEE ALSO
 
 L<Devel::CheckOS>
+
+L<Probe::Perl>
 
 =head1 AUTHORS
 
@@ -257,10 +466,14 @@ David Cantrell E<lt>david@cantrell.org.ukE<gt>
 
 David Golden E<lt>dagolden@cpan.orgE<gt>
 
+Yasuhiro Matsumoto E<lt>mattn@cpan.orgE<gt>
+
 Thanks to the cpan-testers-discuss mailing list for prompting us to write it
 in the first place;
 
-to Chris Williams for help with Borland support.
+to Chris Williams for help with Borland support;
+
+to Tony Cook for help with Microsoft compiler command-line options
 
 =head1 COPYRIGHT and LICENCE
 

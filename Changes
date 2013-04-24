@@ -1,7 +1,9 @@
 Revision history for Perl extension File::ExtAttr.
 
-1.10 2012-??-??
-
+1.10 2013-??-??
+    -    (ioanr) On Linux, use the standard C library xattr support
+                 before trying to use libattr
+                 
     - (richdawe) The source code is now stored a Github:
                  <https://github.com/richdawe/file-extattr>
 

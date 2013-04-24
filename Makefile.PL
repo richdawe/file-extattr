@@ -6,42 +6,24 @@ use File::Temp qw/tempdir/;
 use IO::File;
 use strict;
 
-# Check whether we have <attr/attributes.h> and <attr/xattr.h> on Linux.
+# Check whether we have an "xattr.h" on Linux.
 # Suggest what the user needs to install, to get these files.
 
+my (@DEFINES, @LIBS);
+
 if ($^O eq 'linux') {
-    check_lib_or_exit(
-        lib => [qw(attr)]
-    );
-}
-
-my @DIRS = qw(. /usr/include);
-if ($^O eq 'linux')
-{
-    my %headers = (
-        'attr/attributes.h' => 0,
-        'attr/xattr.h' => 0,
-    );
-    my $incdir;
-    my $missing = 0;
-
-    foreach $incdir (@DIRS)
-    {
-        foreach (keys %headers)
-        {
-            $headers{$_}++ if (-r "$incdir/$_");
-        }
+    # check for libc6-dev first
+    if (!check_lib( header => [qw(sys/xattr.h)] ) ) {
+        warn "'sys/xattr.h' not found. Either package 'lib6-dev' is not installed, or is very old\n";
+        warn "Trying for 'attr/xattr.h' from package 'libattr1-dev'\n";
+        check_lib_or_exit(
+            header => [qw(sys/types.h attr/xattr.h attr/attributes.h )],
+            lib    => [qw(attr)],
+        );
+        push @DEFINES, 'HAS_LIBATTR';
+        # Don't actually need -lattr on Linux - is this only if the libc supports xattrs?
+        push @LIBS, 'attr';
     }
-
-    foreach (keys %headers)
-    {
-        if ($headers{$_} == 0) {
-            warn "<$_> not found; perhaps you need to install libattr-devel";
-            $missing++;
-        }
-    }
-
-    exit(0) if ($missing > 0);
 }
 
 # OpenBSD does not support extended attributes.
@@ -89,11 +71,10 @@ WriteMakefile(
       (ABSTRACT_FROM  => 'lib/File/ExtAttr.pm', # retrieve abstract from module
        AUTHOR         => 'Kevin M. Goess <kgoess@ensenda.com>'
                          .', Richard Dawe <richdawe@cpan.org>') : ()),
-# Don't actually need -lattr on Linux.
-#    LIBS              => ['-lattr'], # e.g., '-lm'
+    LIBS              => join(' ', map { "-l$_" } @LIBS),
     OBJECT            => '$(O_FILES)',
-    DEFINE            => '', # e.g., '-DHAVE_SOMETHING'
-    INC               => join(' ', map { "-I$_" } @DIRS),
+    DEFINE            => join(' ', map { "-D$_" } @DEFINES),
+   # INC               => join(' ', map { "-I$_" } @DIRS),
 #    'MYEXTLIB' => 'mylib/libxattrlib$(LIB_EXT)',
 	# Un-comment this if you add C files to link with later:
     # OBJECT            => '$(O_FILES)', # link all the C files too
