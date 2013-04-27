@@ -46,4 +46,4 @@ t/81closed.t
 lib/File/ExtAttr.pm
 lib/File/ExtAttr/Tie.pm
 META.yml                                 Module meta-data (added by MakeMaker)
-.cvsignore
+.gitignore

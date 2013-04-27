@@ -2,8 +2,14 @@
 #define EXTATTR_LINUX_H
 
 #include <sys/types.h>
+
+#ifdef HAS_LIBATTR
 #include <attr/attributes.h>
 #include <attr/xattr.h>
+#else
+#define ENOATTR ENOENT
+#include <sys/xattr.h>
+#endif
 
 struct hv;
 
