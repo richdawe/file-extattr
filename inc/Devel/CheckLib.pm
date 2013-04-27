@@ -1,7 +1,6 @@
 # $Id: CheckLib.pm,v 1.25 2008/10/27 12:16:23 drhyde Exp $
 
-package #
-Devel::CheckLib;
+package Devel::CheckLib;
 
 use 5.00405; #postfix foreach
 use strict;
@@ -332,7 +331,7 @@ sub assert_lib {
         unlink $ofile if -e $ofile;
         _cleanup_exe($exefile);
     } 
-     unlink $cfile;
+    unlink $cfile;
 
     my $miss_string = join( q{, }, map { qq{'$_'} } @missing );
     die("Can't link/include C library $miss_string, aborting.\n") if @missing;
