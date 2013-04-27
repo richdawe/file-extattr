@@ -14,8 +14,8 @@ my (@DEFINES, @LIBS);
 if ($^O eq 'linux') {
     # check for libc6-dev first
     if (!check_lib( header => [qw(sys/xattr.h)] ) ) {
-        warn "'sys/xattr.h' not found. Either package 'lib6-dev' is not installed, or is very old\n";
-        warn "Trying for 'attr/xattr.h' from package 'libattr1-dev'\n";
+        warn "'sys/xattr.h' not found. Either package 'lib6-dev' (Debian) or glibc-devel (RHEL/CentOS/Fedora) is not installed, or is very old\n";
+        warn "Trying for 'attr/xattr.h' from package 'libattr1-dev' (Debian) or libattr-devel (RHEL/CentOS/Fedora)\n";
         check_lib_or_exit(
             header => [qw(sys/types.h attr/xattr.h attr/attributes.h )],
             lib    => [qw(attr)],
